@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Phone, MapPin } from "lucide-react";
-import { FacebookIcon, ZaloIcon } from "@/components/Icons";
+import { ContactButton } from "@/components/ContactButton";
 
 interface FooterProps {
   config: {
@@ -27,14 +27,18 @@ export function Footer({ config }: FooterProps) {
           </p>
           <div className="flex gap-4">
             {config?.facebook_url && (
-              <a href={config.facebook_url} target="_blank" rel="noopener noreferrer" className="p-2 bg-neutral-100 rounded-full text-neutral-600 hover:bg-amber-100 hover:text-amber-600 transition-all">
-                <FacebookIcon size={20} />
-              </a>
+              <ContactButton 
+                type="messenger" 
+                value={config.facebook_url}
+                className="p-2 bg-neutral-100 rounded-full text-neutral-600 hover:bg-amber-100 hover:text-amber-600"
+              />
             )}
             {config?.zalo_url && (
-              <a href={config.zalo_url} target="_blank" rel="noopener noreferrer" className="p-2 bg-neutral-100 rounded-full text-neutral-600 hover:bg-amber-100 hover:text-amber-600 transition-all">
-                <ZaloIcon size={20} />
-              </a>
+              <ContactButton 
+                type="zalo" 
+                value={config.zalo_url}
+                className="p-2 bg-neutral-100 rounded-full text-neutral-600 hover:bg-amber-100 hover:text-amber-600"
+              />
             )}
           </div>
         </div>

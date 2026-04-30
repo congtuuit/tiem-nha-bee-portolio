@@ -2,7 +2,7 @@
   "meta": {
     "schema_version": "1.1.0",
     "awf_version": "4.0.2",
-    "last_updated": "2026-04-30T10:10:00+07:00",
+    "last_updated": "2026-04-30T22:40:00+07:00",
     "project_root": "d:/git/tiem-nha-bee-portolio"
   },
   "project": {
@@ -28,111 +28,65 @@
     "forms": "React Hook Form v7",
     "icons": "lucide-react v1.14",
     "toast": "Sonner (via shadcn/ui)",
+    "carousel": "Swiper v12",
     "image_compression": "browser-image-compression"
   },
-  "environment_variables": {
-    "NEXT_PUBLIC_SUPABASE_URL": "https://qyphbvtptedmxzhysbwh.supabase.co",
-    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_*** (Supabase anon key)",
-    "DATABASE_URL": "postgresql pooler port 6543 (for Prisma runtime)",
-    "DIRECT_URL": "postgresql direct port 5432 (for Prisma migrations)",
-    "R2_ACCOUNT_ID": "e39b08da1503e4a4249ddad0219e819f",
-    "R2_ACCESS_KEY_ID": "set",
-    "R2_SECRET_ACCESS_KEY": "set",
-    "R2_BUCKET_NAME": "tiem-nha-bee",
-    "R2_PUBLIC_URL": "https://e39b08da1503e4a4249ddad0219e819f.r2.cloudflarestorage.com"
-  },
   "database_schema": {
-    "summary": "Gồm 3 bảng chính: products, categories (đa cấp), và shop_config",
+    "summary": "Gồm 3 bảng chính: products, categories (đa cấp), và shop_config (CMS động)",
     "orm_file": "prisma/schema.prisma",
     "tables": [
       {
         "name": "products",
         "columns": [
-          { "name": "id", "type": "uuid", "note": "Primary Key" },
+          { "name": "id", "type": "uuid" },
           { "name": "name", "type": "text" },
-          { "name": "slug", "type": "text", "note": "Unique" },
-          { "name": "category_id", "type": "uuid", "note": "FK to categories" },
+          { "name": "slug", "type": "text" },
           { "name": "price", "type": "decimal" },
           { "name": "cover_image", "type": "text" },
           { "name": "images", "type": "json" }
         ]
       },
       {
-        "name": "categories",
-        "columns": [
-          { "name": "id", "type": "uuid" },
-          { "name": "name", "type": "text" },
-          { "name": "slug", "type": "text", "note": "Unique" },
-          { "name": "parent_id", "type": "uuid", "note": "Self-relation for hierarchy" }
-        ]
-      },
-      {
         "name": "shop_config",
         "columns": [
-          { "name": "id", "type": "text", "note": "default='default'" },
-          { "name": "shop_name", "type": "text" },
-          { "name": "zalo_url", "type": "text" },
-          { "name": "facebook_url", "type": "text" }
+          { "name": "id", "type": "text" },
+          { "name": "hero_title", "type": "text" },
+          { "name": "hero_subtitle", "type": "text" },
+          { "name": "hero_image", "type": "text" },
+          { "name": "meta_title", "type": "text" },
+          { "name": "meta_description", "type": "text" }
         ]
       }
     ]
   },
-  "api_endpoints": [
-    {
-      "method": "POST",
-      "path": "/api/upload/presigned",
-      "explained": "Tạo presigned URL upload ảnh lên R2",
-      "file": "app/api/upload/presigned/route.ts"
-    },
-    {
-      "method": "POST",
-      "path": "/api/admin/bulk-import",
-      "explained": "Import sản phẩm hàng loạt kèm xử lý category hierarchy",
-      "file": "app/api/admin/bulk-import/route.ts"
-    }
-  ],
   "file_structure": {
-    "app/(public)/page.tsx": "Trang chủ - danh sách sản phẩm (ISR revalidate 60s)",
-    "app/(public)/san-pham/[slug]/page.tsx": "Chi tiết sản phẩm theo slug",
-    "app/(admin)/layout.tsx": "Layout admin: sidebar cố định + main scroll",
-    "app/(admin)/admin/login/page.tsx": "Trang đăng nhập admin",
-    "app/(admin)/admin/products/page.tsx": "Danh sách sản phẩm (admin table)",
-    "app/(admin)/admin/products/create/page.tsx": "Trang tạo sản phẩm mới",
-    "app/(admin)/admin/products/edit/[id]/page.tsx": "Trang sửa sản phẩm",
-    "components/ProductForm.tsx": "Form thêm/sửa sản phẩm (react-hook-form + zod)",
-    "components/ProductCard.tsx": "Card hiển thị sản phẩm trên trang public",
-    "components/ImageUploader.tsx": "Upload ảnh lên R2 (compress trước khi upload)",
-    "components/DeleteProductButton.tsx": "Nút xóa có AlertDialog confirm (shadcn)",
-    "components/ui/": "Thư mục shadcn/ui components",
-    "lib/supabase/server.ts": "Supabase client cho Server Components",
-    "lib/supabase/client.ts": "Supabase client cho Client Components",
-    "lib/r2Client.ts": "AWS S3 client cho Cloudflare R2",
-    "middleware.ts": "Route protection: redirect /admin/* về /admin/login nếu chưa đăng nhập",
-    "prisma/schema.prisma": "Prisma schema định nghĩa bảng products"
+    "app/(public)/page.tsx": "Trang chủ - CMS động, Featured Categories, Hero section",
+    "app/(public)/san-pham/page.tsx": "Listing page - Lọc đa năng (Mobile Sheet), Sort, Active Tags",
+    "app/(public)/san-pham/[slug]/page.tsx": "PDP - Gallery, Related Products Carousel",
+    "components/ui/ImageWithSkeleton.tsx": "Component ảnh tối ưu: Lazy Load + Skeleton",
+    "components/ProductCarousel.tsx": "Carousel sản phẩm liên quan (Swiper + Custom Nav)",
+    "components/MobileFilters.tsx": "Bộ lọc mobile dạng trượt (shadcn Sheet)",
+    "prisma/seed.ts": "Script sinh 25 sản phẩm mẫu"
   },
   "shadcn_components_installed": [
     "button", "input", "label", "table", "dropdown-menu",
-    "alert-dialog", "sonner"
+    "alert-dialog", "sonner", "sheet"
+  ],
+  "features": [
+    "Homepage CMS: Quản lý Hero content từ Admin",
+    "Storefront UI: Giao diện premium, mobile-first",
+    "Smart Filters: Lọc theo danh mục, giá, tìm kiếm",
+    "Image Optimization: Lazy loading và Skeleton placeholders toàn trang",
+    "Product Seeding: 25 records mẫu đa dạng"
   ],
   "known_issues": [
     {
-      "issue": "tailwindcss-animate @plugin gây lỗi với Turbopack",
-      "solution": "Đã xóa dòng @plugin khỏi globals.css. Animations cơ bản vẫn hoạt động."
+      "issue": "Hydration error: button in button",
+      "solution": "Thay button thumbnail thành div (role=button) trong ProductGallery"
     },
     {
-      "issue": "middleware.ts deprecated - Next.js 16+ dùng proxy.ts",
-      "solution": "Chưa xử lý, middleware vẫn hoạt động nhưng có warning"
-    },
-    {
-      "issue": "Nút Xóa (Delete) trước đây bị lỗi onClick trong Server Component",
-      "solution": "Đã tách thành DeleteProductButton ('use client') với AlertDialog"
+      "issue": "Image 404 Domain Config",
+      "solution": "Khai báo images.unsplash.com và R2 domain trong next.config.ts"
     }
-  ],
-  "business_rules": [
-    "Không có giỏ hàng, không có thanh toán",
-    "price = null thì hiển thị 'Liên hệ'",
-    "Ảnh đầu tiên upload = cover_image tự động",
-    "Chỉ admin đăng nhập mới thêm/sửa/xóa sản phẩm",
-    "slug tự động generate từ name khi blur (dùng slugify)"
   ]
 }

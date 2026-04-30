@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { getShopConfig } from "@/lib/config";
+import { FloatingContact } from "@/components/FloatingContact";
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const config = await getShopConfig();
@@ -12,6 +13,7 @@ export default async function PublicLayout({ children }: { children: React.React
         {children}
       </main>
       <Footer config={config} />
+      <FloatingContact config={config} />
     </div>
   );
 }
