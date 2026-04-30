@@ -11,6 +11,7 @@ import { ZaloIcon, FacebookIcon } from "@/components/Icons";
 import { cn } from "@/lib/utils";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductCarousel } from "@/components/ProductCarousel";
+import { getContactUrls } from "@/lib/contact";
 
 export const revalidate = 60; // ISR
 
@@ -29,12 +30,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Không tìm thấy sản phẩm" };
   }
 
+  const title = `${product.name} - Tiệm Nhà Bee`;
+  const description = product.description?.substring(0, 160) || `Sản phẩm handmade ${product.name} tinh tế tại Tiệm Nhà Bee. Đặt hàng ngay!`;
+
   return {
-    title: product.name,
-    description: product.description?.substring(0, 160) || `Sản phẩm ${product.name} tại Tiệm Nhà Bee`,
+    title,
+    description,
+    keywords: [product.name, "handmade", "đồ len", "quà tặng", "tiệm nhà bee", "crochet"],
     openGraph: {
-      images: product.cover_image ? [product.cover_image] : [],
+      title,
+      description,
+      type: "website",
+      images: product.cover_image ? [{ url: product.cover_image, alt: product.name }] : [],
     },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: product.cover_image ? [product.cover_image] : [],
+    }
   };
 }
 
@@ -50,8 +64,12 @@ export default async function ProductDetailPage({ params }: Props) {
   }
 
   const shopConfig = await getShopConfig();
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://tiemnhabee.com";
+  const productUrl = `${baseUrl}/san-pham/${product.slug}`;
 
-  // Fetch related products (same category or similar name)
+  const { fbUrl, zaloUrl } = getContactUrls(shopConfig, product.name, productUrl);
+
+  // Fetch related products
   const relatedProducts = await prisma.products.findMany({
     where: {
       AND: [
@@ -75,12 +93,33 @@ export default async function ProductDetailPage({ params }: Props) {
   const imagesArray = Array.isArray(product.images) ? (product.images as string[]) : [];
   const allImages = imagesArray.length > 0 ? imagesArray : (product.cover_image ? [product.cover_image] : []);
 
-  const contactUrl = shopConfig?.facebook_url || shopConfig?.zalo_url || "https://m.me/tiemnhabee";
-  const isZalo = contactUrl.includes("zalo.me");
-  const isFacebook = contactUrl.includes("facebook.com") || contactUrl.includes("m.me");
+  // Structured Data (JSON-LD)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "image": allImages,
+    "description": product.description,
+    "brand": {
+      "@type": "Brand",
+      "name": "Tiệm Nhà Bee"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": productUrl,
+      "priceCurrency": "VND",
+      "price": product.price ? Number(product.price) : 0,
+      "availability": "https://schema.org/InStock"
+    }
+  };
 
   return (
     <div className="space-y-12 pb-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <Breadcrumbs
         items={[
           { label: "Sản phẩm", href: "/san-pham" },
@@ -105,20 +144,43 @@ export default async function ProductDetailPage({ params }: Props) {
           </div>
 
           <div className="pt-8 space-y-4 border-t border-neutral-100">
-            <a
-              href={contactUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(
-                "inline-flex items-center justify-center gap-3 w-full px-8 py-5 text-lg font-bold text-white rounded-[2rem] transition-all shadow-xl active:scale-[0.98] group",
-                isFacebook ? "bg-[#0866FF] hover:bg-[#0055D4] shadow-[#0866FF]/20" :
-                  isZalo ? "bg-[#0068FF] hover:bg-[#0055D4] shadow-[#0068FF]/20" :
-                    "bg-neutral-900 hover:bg-amber-600 shadow-neutral-900/20"
-              )}
-            >
-              {isZalo ? <ZaloIcon size={24} /> : isFacebook ? <FacebookIcon size={24} /> : <MessageCircle className="w-6 h-6" />}
-              Liên hệ tư vấn / Đặt hàng
-            </a>
+            {/* Facebook Messenger Button */}
+            {fbUrl && (
+              <a
+                href={fbUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-3 w-full px-5 py-3 text-lg font-bold text-white rounded-[2rem] transition-all shadow-xl active:scale-[0.98] group bg-[#0866FF] hover:bg-[#0055D4] shadow-[#0866FF]/20"
+              >
+                <FacebookIcon size={24} />
+                Liên hệ qua Facebook
+              </a>
+            )}
+
+            {/* Zalo Button */}
+            {zaloUrl && (
+              <a
+                href={zaloUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-3 w-full px-5 py-3 text-lg font-bold text-white rounded-[2rem] transition-all shadow-xl active:scale-[0.98] group bg-[#0068FF] hover:bg-[#0055D4] shadow-[#0068FF]/20"
+              >
+                <ZaloIcon size={24} />
+                Liên hệ qua Zalo
+              </a>
+            )}
+
+            {!fbUrl && !zaloUrl && (
+              <a
+                href="https://m.me/tiemnhabee"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-3 w-full px-8 py-5 text-lg font-bold text-white rounded-[2rem] transition-all shadow-xl active:scale-[0.98] group bg-neutral-900 hover:bg-amber-600 shadow-neutral-900/20"
+              >
+                <MessageCircle className="w-6 h-6" />
+                Liên hệ tư vấn
+              </a>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-neutral-50 rounded-2xl flex items-center gap-3">

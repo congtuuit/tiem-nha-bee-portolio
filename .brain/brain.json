@@ -42,28 +42,38 @@
     "R2_PUBLIC_URL": "https://e39b08da1503e4a4249ddad0219e819f.r2.cloudflarestorage.com"
   },
   "database_schema": {
-    "summary": "Chỉ có 1 bảng: products - lưu thông tin sản phẩm handmade",
+    "summary": "Gồm 3 bảng chính: products, categories (đa cấp), và shop_config",
     "orm_file": "prisma/schema.prisma",
     "tables": [
       {
         "name": "products",
         "columns": [
-          { "name": "id", "type": "uuid", "note": "Primary Key, auto-generated" },
-          { "name": "name", "type": "text", "note": "Tên sản phẩm, bắt buộc" },
-          { "name": "slug", "type": "text", "note": "URL-friendly name, unique" },
-          { "name": "description", "type": "text", "note": "Mô tả, tùy chọn" },
-          { "name": "price", "type": "decimal", "note": "Giá VNĐ, tùy chọn (null = Liên hệ)" },
-          { "name": "cover_image", "type": "text", "note": "URL ảnh bìa trên R2" },
-          { "name": "images", "type": "json", "note": "Mảng URL các ảnh phụ, default []" },
-          { "name": "created_at", "type": "timestamptz", "note": "Auto set on insert" }
-        ],
-        "rls": {
-          "enabled": true,
-          "policies": [
-            "Public can SELECT (anyone)",
-            "Authenticated can INSERT, UPDATE, DELETE (admin only)"
-          ]
-        }
+          { "name": "id", "type": "uuid", "note": "Primary Key" },
+          { "name": "name", "type": "text" },
+          { "name": "slug", "type": "text", "note": "Unique" },
+          { "name": "category_id", "type": "uuid", "note": "FK to categories" },
+          { "name": "price", "type": "decimal" },
+          { "name": "cover_image", "type": "text" },
+          { "name": "images", "type": "json" }
+        ]
+      },
+      {
+        "name": "categories",
+        "columns": [
+          { "name": "id", "type": "uuid" },
+          { "name": "name", "type": "text" },
+          { "name": "slug", "type": "text", "note": "Unique" },
+          { "name": "parent_id", "type": "uuid", "note": "Self-relation for hierarchy" }
+        ]
+      },
+      {
+        "name": "shop_config",
+        "columns": [
+          { "name": "id", "type": "text", "note": "default='default'" },
+          { "name": "shop_name", "type": "text" },
+          { "name": "zalo_url", "type": "text" },
+          { "name": "facebook_url", "type": "text" }
+        ]
       }
     ]
   },
@@ -71,9 +81,14 @@
     {
       "method": "POST",
       "path": "/api/upload/presigned",
-      "explained": "Tạo presigned URL để upload ảnh lên Cloudflare R2 trực tiếp từ browser",
-      "auth": "Không bắt buộc (nhưng nên bảo vệ)",
+      "explained": "Tạo presigned URL upload ảnh lên R2",
       "file": "app/api/upload/presigned/route.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/bulk-import",
+      "explained": "Import sản phẩm hàng loạt kèm xử lý category hierarchy",
+      "file": "app/api/admin/bulk-import/route.ts"
     }
   ],
   "file_structure": {
