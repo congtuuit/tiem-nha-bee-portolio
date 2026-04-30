@@ -22,11 +22,14 @@ model products {
 }
 
 model categories {
-  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name       String
-  slug       String     @unique
+  slug       String       @unique
+  parent_id  String?      @db.Uuid
+  created_at DateTime?    @default(now()) @db.Timestamptz(6)
+  parent     categories?  @relation("CategoryToCategory", fields: [parent_id], references: [id])
+  children   categories[] @relation("CategoryToCategory")
   products   products[]
-  created_at DateTime   @default(now()) @db.Timestamptz(6)
 }
 
 model shop_config {
