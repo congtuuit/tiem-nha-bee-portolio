@@ -4,10 +4,11 @@ import { getShopConfig } from "@/lib/config";
 import { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Filter, SortAsc, SortDesc, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Filter, Sparkles, Tag, X } from "lucide-react";
 
 import { ProductFilters } from "@/components/ProductFilters";
 import { SortSelect } from "@/components/SortSelect";
+import { MobileFilters } from "@/components/MobileFilters";
 
 export const revalidate = 60;
 
@@ -63,8 +64,8 @@ export default async function ProductsPage({ searchParams }: Props) {
   else if (sort === "price_desc") orderBy.price = "desc";
   else orderBy.created_at = "desc";
 
-  // Fetch products and total count
-  const [products, totalCount, categories] = await Promise.all([
+  // Fetch products, total count, and categories
+  const [products, totalCount, allCategories] = await Promise.all([
     prisma.products.findMany({
       where,
       orderBy,
@@ -78,11 +79,11 @@ export default async function ProductsPage({ searchParams }: Props) {
     })
   ]);
 
+  const activeCategory = allCategories.find(c => c.slug === category);
   const totalPages = Math.ceil(totalCount / pageSize);
   const shopConfig = await getShopConfig();
   const contactUrl = shopConfig?.facebook_url || shopConfig?.zalo_url || "https://m.me/tiemnhabee";
 
-  // Helper for pagination links
   const getPageUrl = (p: number) => {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
@@ -92,22 +93,50 @@ export default async function ProductsPage({ searchParams }: Props) {
     return `/san-pham?${searchParams.toString()}`;
   };
 
+  const removeFilterUrl = (keyToRemove: string) => {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value && key !== keyToRemove && key !== "page") searchParams.set(key, value as string);
+    });
+    return `/san-pham?${searchParams.toString()}`;
+  };
+
   return (
     <div className="space-y-8 pb-20">
       <Breadcrumbs items={[{ label: "Sản phẩm" }]} />
 
+      {/* Page Header */}
+      <section className="relative py-12 px-8 rounded-[3rem] overflow-hidden bg-neutral-900 text-white">
+        <div className="absolute inset-0 bg-gradient-to-r from-amber-600/20 to-transparent" />
+        <div className="relative z-10 space-y-4">
+          <div className="flex items-center gap-2 text-amber-400 font-bold text-sm uppercase tracking-widest">
+            <Sparkles className="w-4 h-4" />
+            <span>Khám phá</span>
+          </div>
+          <h1 className="text-4xl md:text-6xl font-black tracking-tight">
+            {activeCategory ? activeCategory.name : search ? `Kết quả cho "${search}"` : "Cửa hàng của Bee"}
+          </h1>
+          <p className="text-neutral-400 max-w-xl font-medium">
+            {activeCategory?.description || "Những sản phẩm handmade tỉ mỉ và nguyên liệu chất lượng cao nhất cho đam mê của bạn."}
+          </p>
+        </div>
+      </section>
+
       <div className="grid lg:grid-cols-[280px_1fr] gap-10">
-        {/* Sidebar Filters (Client Component) */}
-        <aside className="hidden lg:block">
-          <ProductFilters categories={categories} />
+        {/* Desktop Sidebar Filters */}
+        <aside className="hidden lg:block space-y-8">
+          <ProductFilters categories={allCategories} />
         </aside>
 
         {/* Main Content */}
         <div className="space-y-6">
-          {/* Top Bar: Results & Sorting */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-neutral-100 shadow-sm">
-            <div className="text-sm text-neutral-500">
-              Hiển thị <span className="font-bold text-neutral-900">{(currentPage - 1) * pageSize + 1}-{Math.min(currentPage * pageSize, totalCount)}</span> trong <span className="font-bold text-neutral-900">{totalCount}</span> sản phẩm
+          {/* Top Bar: Results, Sorting & Mobile Filters */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-neutral-100 shadow-sm">
+            <div className="flex items-center gap-4">
+              <MobileFilters categories={allCategories} />
+              <div className="text-sm text-neutral-500 font-medium">
+                Hiển thị <span className="font-bold text-neutral-900">{(currentPage - 1) * pageSize + 1}-{Math.min(currentPage * pageSize, totalCount)}</span> của <span className="font-bold text-neutral-900">{totalCount}</span>
+              </div>
             </div>
 
             <div className="flex items-center gap-4">
@@ -115,25 +144,59 @@ export default async function ProductsPage({ searchParams }: Props) {
             </div>
           </div>
 
+          {/* Active Filter Tags */}
+          {(category || search || minPrice || maxPrice) && (
+            <div className="flex flex-wrap gap-2 items-center">
+              <span className="text-xs font-bold text-neutral-400 uppercase mr-2 flex items-center gap-1">
+                <Tag className="w-3 h-3" />
+                Đang lọc:
+              </span>
+              {search && (
+                <Link href={removeFilterUrl("search")} className="flex items-center gap-1 px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-bold border border-amber-200 hover:bg-amber-100 transition-colors">
+                  Từ khóa: {search} <X className="w-3 h-3" />
+                </Link>
+              )}
+              {category && activeCategory && (
+                <Link href={removeFilterUrl("category")} className="flex items-center gap-1 px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-bold border border-amber-200 hover:bg-amber-100 transition-colors">
+                  Danh mục: {activeCategory.name} <X className="w-3 h-3" />
+                </Link>
+              )}
+              {(minPrice || maxPrice) && (
+                <Link href={removeFilterUrl("minPrice")} className="flex items-center gap-1 px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-bold border border-amber-200 hover:bg-amber-100 transition-colors">
+                  Giá: {minPrice || 0}đ - {maxPrice || "Max"}đ <X className="w-3 h-3" />
+                </Link>
+              )}
+              <Link href="/san-pham" className="text-xs text-neutral-400 hover:text-red-500 font-bold transition-colors">Xóa tất cả</Link>
+            </div>
+          )}
+
           {/* Product Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} contactUrl={contactUrl} />
             ))}
             {!products.length && (
-              <div className="col-span-full py-20 text-center space-y-4 bg-white rounded-3xl border border-dashed border-neutral-200">
-                <p className="text-neutral-500 font-medium">Không tìm thấy sản phẩm nào phù hợp.</p>
-                <Link href="/san-pham" className="inline-block text-amber-600 font-bold hover:underline">Xóa bộ lọc</Link>
+              <div className="col-span-full py-24 text-center space-y-6 bg-white rounded-[3rem] border border-dashed border-neutral-200">
+                <div className="w-20 h-20 bg-neutral-50 rounded-full flex items-center justify-center mx-auto">
+                  <Filter className="w-10 h-10 text-neutral-300" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-xl font-bold text-neutral-900">Không tìm thấy sản phẩm</p>
+                  <p className="text-neutral-500">Hãy thử thay đổi từ khóa hoặc bộ lọc của bạn.</p>
+                </div>
+                <Link href="/san-pham" className="inline-block px-8 py-3 bg-neutral-900 text-white font-bold rounded-full hover:bg-amber-600 transition-all">
+                  Quay lại cửa hàng
+                </Link>
               </div>
             )}
           </div>
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 pt-8">
+            <div className="flex items-center justify-center gap-2 pt-12">
               <Link
                 href={getPageUrl(currentPage - 1)}
-                className={`p-2 rounded-lg border transition-all ${currentPage === 1 ? 'pointer-events-none opacity-20' : 'hover:bg-amber-50 hover:border-amber-200'}`}
+                className={`p-3 rounded-xl border transition-all ${currentPage === 1 ? 'pointer-events-none opacity-20' : 'hover:bg-amber-50 hover:border-amber-200'}`}
               >
                 <ChevronLeft className="w-5 h-5" />
               </Link>
@@ -144,7 +207,7 @@ export default async function ProductsPage({ searchParams }: Props) {
                   <Link
                     key={p}
                     href={getPageUrl(p)}
-                    className={`w-10 h-10 flex items-center justify-center rounded-lg border font-medium transition-all ${currentPage === p ? 'bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-500/20' : 'hover:bg-amber-50 hover:border-amber-200'}`}
+                    className={`w-12 h-12 flex items-center justify-center rounded-xl border font-bold transition-all ${currentPage === p ? 'bg-amber-500 border-amber-500 text-white shadow-xl shadow-amber-500/20' : 'hover:bg-amber-50 hover:border-amber-200'}`}
                   >
                     {p}
                   </Link>
@@ -153,7 +216,7 @@ export default async function ProductsPage({ searchParams }: Props) {
 
               <Link
                 href={getPageUrl(currentPage + 1)}
-                className={`p-2 rounded-lg border transition-all ${currentPage === totalPages ? 'pointer-events-none opacity-20' : 'hover:bg-amber-50 hover:border-amber-200'}`}
+                className={`p-3 rounded-xl border transition-all ${currentPage === totalPages ? 'pointer-events-none opacity-20' : 'hover:bg-amber-50 hover:border-amber-200'}`}
               >
                 <ChevronRight className="w-5 h-5" />
               </Link>

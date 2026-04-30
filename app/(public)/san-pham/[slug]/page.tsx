@@ -68,6 +68,7 @@ export default async function ProductDetailPage({ params }: Props) {
   const productUrl = `${baseUrl}/san-pham/${product.slug}`;
 
   const { fbUrl, zaloUrl } = getContactUrls(shopConfig, product.name, productUrl);
+  const contactUrl = shopConfig?.facebook_url || shopConfig?.zalo_url || "https://m.me/tiemnhabee";
 
   // Fetch related products
   const relatedProducts = await prisma.products.findMany({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import { ImageWithSkeleton } from "./ui/ImageWithSkeleton";
 import { cn } from "@/lib/utils";
 
 interface ProductGalleryProps {
@@ -24,7 +24,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
     <div className="space-y-4">
       {/* Main Image */}
       <div className="relative aspect-square rounded-2xl overflow-hidden bg-neutral-100 border border-neutral-200 shadow-sm">
-        <Image
+        <ImageWithSkeleton
           src={images[selectedImage]}
           alt={productName}
           fill
@@ -38,18 +38,25 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
       {images.length > 1 && (
         <div className="flex flex-wrap gap-3">
           {images.map((img, idx) => (
-            <button
+            <div
               key={idx}
+              role="button"
+              tabIndex={0}
               onClick={() => setSelectedImage(idx)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  setSelectedImage(idx);
+                }
+              }}
               className={cn(
-                "relative w-20 h-20 rounded-xl overflow-hidden bg-neutral-100 border transition-all",
+                "relative w-20 h-20 rounded-xl overflow-hidden bg-neutral-100 border transition-all cursor-pointer",
                 selectedImage === idx
                   ? "border-amber-500 ring-2 ring-amber-500/20"
                   : "border-neutral-200 hover:border-neutral-300"
               )}
             >
-              <Image src={img} alt={`${productName} ${idx + 1}`} fill className="object-cover" sizes="80px" />
-            </button>
+              <ImageWithSkeleton src={img} alt={`${productName} ${idx + 1}`} fill className="object-cover" sizes="80px" />
+            </div>
           ))}
         </div>
       )}

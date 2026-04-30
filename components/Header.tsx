@@ -110,12 +110,19 @@ export function Header() {
                       </div>
                     </Link>
                   ))}
-                  <button
-                    onClick={handleSearch}
-                    className="w-full mt-2 p-2 text-xs font-bold text-neutral-500 hover:text-amber-600 bg-neutral-50 hover:bg-amber-50 rounded-xl transition-colors"
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => handleSearch({ preventDefault: () => {} } as any)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        handleSearch({ preventDefault: () => {} } as any);
+                      }
+                    }}
+                    className="w-full mt-2 p-2 text-xs font-bold text-neutral-500 hover:text-amber-600 bg-neutral-50 hover:bg-amber-50 rounded-xl transition-colors text-center cursor-pointer"
                   >
                     Xem tất cả kết quả cho "{searchQuery}"
-                  </button>
+                  </div>
                 </div>
               ) : (
                 <div className="p-4">

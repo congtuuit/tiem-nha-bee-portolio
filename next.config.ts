@@ -5,7 +5,19 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**', // Allow all for MVP, or specify R2 public URL
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pub-*.r2.dev', // Cloudflare R2
+      },
+      {
+        protocol: 'https',
+        hostname: 'v5.airtableusercontent.com',
       },
     ],
   },

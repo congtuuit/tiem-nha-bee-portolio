@@ -44,4 +44,9 @@ model shop_config {
   meta_description String?
   map_embed_url String?
   working_hours Json?   @default("[]")
+  
+  // Homepage Content
+  hero_title    String? @default("Gửi gắm yêu thương trong từng mũi len")
+  hero_subtitle String? @default("Sản phẩm handmade tỉ mỉ và nguyên liệu len sợi chất lượng cao")
+  hero_image    String?
 }

@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { ImageWithSkeleton } from './ui/ImageWithSkeleton';
 import Link from 'next/link';
 import { MessageCircle } from 'lucide-react';
 import { ZaloIcon, FacebookIcon } from '@/components/Icons';
@@ -22,7 +22,7 @@ export function ProductCard({ product, contactUrl = "https://m.me/tiemnhabee" }:
       {/* Image Link */}
       <Link href={`/san-pham/${product.slug}`} className="relative aspect-[4/5] overflow-hidden bg-neutral-100 block">
         {product.cover_image ? (
-          <Image
+          <ImageWithSkeleton
             src={product.cover_image}
             alt={product.name}
             fill

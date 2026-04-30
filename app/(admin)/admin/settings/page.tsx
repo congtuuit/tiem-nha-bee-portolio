@@ -21,6 +21,9 @@ export default function SettingsPage() {
     meta_description: "",
     map_embed_url: "",
     working_hours: [] as { day: string; open: string; close: string; active: boolean }[],
+    hero_title: "",
+    hero_subtitle: "",
+    hero_image: "",
   });
 
   const daysOfWeek = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
@@ -182,6 +185,54 @@ export default function SettingsPage() {
               className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition-all min-h-[80px]"
               placeholder="Tiệm Nhà Bee - Chuyên đồ handmade..."
             />
+          </div>
+        </div>
+
+        {/* Homepage CMS */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4 md:col-span-2">
+          <div className="flex items-center gap-2 text-amber-600 font-semibold mb-2">
+            <Store className="w-5 h-5" />
+            <span>Nội dung Trang chủ (Hero Section)</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Tiêu đề chính (Headline)</label>
+                <input
+                  type="text"
+                  value={config.hero_title || ""}
+                  onChange={(e) => setConfig({ ...config, hero_title: e.target.value })}
+                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition-all"
+                  placeholder="Gửi gắm yêu thương trong từng mũi len"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Tiêu đề phụ (Sub-headline)</label>
+                <textarea
+                  value={config.hero_subtitle || ""}
+                  onChange={(e) => setConfig({ ...config, hero_subtitle: e.target.value })}
+                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition-all min-h-[80px]"
+                  placeholder="Sản phẩm handmade tỉ mỉ..."
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">Ảnh nền Hero (URL)</label>
+              <input
+                type="text"
+                value={config.hero_image || ""}
+                onChange={(e) => setConfig({ ...config, hero_image: e.target.value })}
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition-all"
+                placeholder="https://..."
+              />
+              <div className="mt-2 aspect-video w-full bg-slate-100 rounded-xl overflow-hidden relative border border-dashed border-slate-300 flex items-center justify-center">
+                {config.hero_image ? (
+                  <img src={config.hero_image} alt="Hero Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-xs text-slate-400">Xem trước ảnh nền</span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
