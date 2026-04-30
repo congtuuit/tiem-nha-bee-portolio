@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Save, Store, Phone, MapPin, Globe, MessageCircle, Info, Clock } from "lucide-react";
 import { toast } from "sonner";
+import { Loading } from "@/components/Loading";
 
 import { FacebookIcon, ZaloIcon } from "@/components/Icons";
 
@@ -81,11 +82,7 @@ export default function SettingsPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
-      </div>
-    );
+    return <Loading text="Đang tải cấu hình..." />;
   }
 
   return (

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Tag, Loader2 } from "lucide-react";
+import { Plus, Trash2, Tag } from "lucide-react";
 import { toast } from "sonner";
+import { Loading } from "@/components/Loading";
 
 interface Category {
   id: string;
@@ -65,11 +66,7 @@ export default function CategoriesPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
-      </div>
-    );
+    return <Loading text="Đang tải danh mục..." />;
   }
 
   return (
