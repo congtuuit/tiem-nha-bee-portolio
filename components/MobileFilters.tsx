@@ -18,12 +18,14 @@ interface MobileFiltersProps {
 export function MobileFilters({ categories }: MobileFiltersProps) {
   return (
     <Sheet>
-      <SheetTrigger asChild>
-        <Button variant="outline" className="lg:hidden flex items-center gap-2 rounded-xl bg-white border-neutral-200">
-          <Filter className="w-4 h-4" />
-          <span>Bộ lọc</span>
-        </Button>
-      </SheetTrigger>
+      <SheetTrigger
+        render={
+          <Button variant="outline" className="lg:hidden flex items-center gap-2 rounded-xl bg-white border-neutral-200">
+            <Filter className="w-4 h-4" />
+            <span>Bộ lọc</span>
+          </Button>
+        }
+      />
       <SheetContent side="left" className="w-[300px] overflow-y-auto">
         <SheetHeader className="mb-6">
           <SheetTitle className="text-xl font-black">Bộ lọc sản phẩm</SheetTitle>

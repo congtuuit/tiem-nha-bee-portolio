@@ -19,7 +19,7 @@ const productSchema = z.object({
   description: z.string().optional(),
   price: z.number().min(0, "Giá không hợp lệ").optional().or(z.literal("")),
   cover_image: z.string().optional(),
-  images: z.array(z.string()).default([]),
+  images: z.array(z.string()),
   category_id: z.string().optional().or(z.literal("")),
 });
 
