@@ -11,6 +11,12 @@ interface ImageUploaderProps {
   maxImages?: number;
 }
 
+interface UploadResponse {
+  signedUrl: string;
+  publicUrl: string;
+  key: string;
+}
+
 export function ImageUploader({
   onUploadSuccess,
   existingImages = [],
@@ -34,8 +40,10 @@ export function ImageUploader({
 
       // 1. Tối ưu ảnh (Compress)
       const options = {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1920,
+        maxSizeMB: 0.5,
+        maxWidthOrHeight: 1280,
+        fileType: "image/webp",
+        initialQuality: 0.8,
         useWebWorker: true,
       };
       const compressedFile = await imageCompression(file, options);
@@ -52,14 +60,11 @@ export function ImageUploader({
 
       if (!presignedRes.ok) throw new Error("Không thể tạo URL tải lên");
 
-      const { signedUrl, publicUrl } = await presignedRes.json();
+      const { signedUrl, publicUrl, key } = await presignedRes.json() as UploadResponse;
 
       // 3. Tải lên R2 qua S3 API
       const uploadRes = await fetch(signedUrl, {
         method: "PUT",
-        headers: {
-          "Content-Type": compressedFile.type,
-        },
         body: compressedFile,
       });
 

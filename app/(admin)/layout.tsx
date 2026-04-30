@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Package, LogOut, LayoutDashboard, Settings, Store } from "lucide-react";
+import { LogOut, Store } from "lucide-react";
 import { redirect } from "next/navigation";
+import { AdminNav } from "@/components/AdminNav";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -17,32 +17,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </div>
             <span className="text-xl font-bold text-slate-800 tracking-tight">Tiệm Nhà Bee</span>
           </div>
-          <nav className="p-4 space-y-2 flex-grow">
-            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-4 mt-4">Menu Quản Trị</div>
-            <Link
-              href="/admin/products"
-              className="flex items-center gap-3 px-4 py-3 bg-amber-50 text-amber-700 rounded-xl font-medium transition-all group"
-            >
-              <Package className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span>Sản phẩm</span>
-            </Link>
-            <Link
-              href="#"
-              className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-700 rounded-xl font-medium transition-all group opacity-50 cursor-not-allowed"
-              title="Sắp ra mắt"
-            >
-              <LayoutDashboard className="w-5 h-5" />
-              <span>Thống kê</span>
-            </Link>
-            <Link
-              href="#"
-              className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-700 rounded-xl font-medium transition-all group opacity-50 cursor-not-allowed"
-              title="Sắp ra mắt"
-            >
-              <Settings className="w-5 h-5" />
-              <span>Cài đặt</span>
-            </Link>
-          </nav>
+          <AdminNav />
 
           <div className="p-4 border-t border-slate-100">
             <div className="bg-slate-50 rounded-xl p-4 flex flex-col items-center text-center">

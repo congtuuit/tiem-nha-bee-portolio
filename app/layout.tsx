@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { getShopConfig } from "@/lib/config";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -17,10 +18,16 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Tiệm Nhà Bee | Sản phẩm thủ công mỹ nghệ",
-  description: "Khám phá các sản phẩm thủ công độc đáo, chất lượng cao từ Tiệm Nhà Bee.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const shopConfig = await getShopConfig();
+  return {
+    title: {
+      default: shopConfig?.meta_title || "Tiệm Nhà Bee | Đồ Handmade & Quà Tặng",
+      template: `%s | ${shopConfig?.shop_name || "Tiệm Nhà Bee"}`,
+    },
+    description: shopConfig?.meta_description || "Cửa hàng đồ handmade, quà tặng ý nghĩa và độc đáo.",
+  };
+}
 
 export default function RootLayout({
   children,
