@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# AWF Brain (session state - local only)
+.brain/session.json
+
+# Prisma scripts
+setup-rls.ts
+.env

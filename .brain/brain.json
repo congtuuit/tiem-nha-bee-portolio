@@ -1,40 +1,123 @@
 {
-  "project": {
-    "name": "tiem-nha-bee-portfolio",
-    "description": "Handmade product showcase website with admin dashboard, optimized for free-tier deployment.",
-    "created_at": "2026-04-30T08:52:37+07:00"
+  "meta": {
+    "schema_version": "1.1.0",
+    "awf_version": "4.0.2",
+    "last_updated": "2026-04-30T10:10:00+07:00",
+    "project_root": "d:/git/tiem-nha-bee-portolio"
   },
-  "tech_stack": [
-    "Next.js 14+ (App Router)",
-    "TypeScript",
-    "TailwindCSS",
-    "Supabase (DB + Auth)",
-    "Cloudflare R2 (image storage via S3 API)",
-    "Zod (validation)",
-    "React Hook Form (forms)"
-  ],
-  "features": [
-    "Public product showcase",
-    "Admin dashboard for CRUD products",
-    "Image upload to Cloudflare R2",
-    "SEO optimization",
-    "Responsive design"
-  ],
-  "decisions": [
+  "project": {
+    "name": "Tiệm Nhà Bee Portfolio",
+    "type": "Next.js Web App",
+    "status": "in_development",
+    "description": "Website showcase sản phẩm thủ công mỹ nghệ handmade. Không có giỏ hàng, không thanh toán. Chỉ xem sản phẩm (public) và quản lý CRUD sản phẩm (admin).",
+    "repo": "d:/git/tiem-nha-bee-portolio",
+    "local_url": "http://localhost:3000",
+    "deployment_target": "Vercel (free tier)"
+  },
+  "tech_stack": {
+    "framework": "Next.js 16.2.4 (App Router)",
+    "language": "TypeScript",
+    "styling": "TailwindCSS v4 + shadcn/ui",
+    "ui_library": "shadcn/ui (components in components/ui/)",
+    "fonts": "Plus Jakarta Sans (body) + JetBrains Mono (code)",
+    "database": "Supabase PostgreSQL (free tier)",
+    "orm": "Prisma v5 (code-first, db push only)",
+    "auth": "Supabase Auth (email/password)",
+    "storage": "Cloudflare R2 (S3-compatible, image upload)",
+    "validation": "Zod v4",
+    "forms": "React Hook Form v7",
+    "icons": "lucide-react v1.14",
+    "toast": "Sonner (via shadcn/ui)",
+    "image_compression": "browser-image-compression"
+  },
+  "environment_variables": {
+    "NEXT_PUBLIC_SUPABASE_URL": "https://qyphbvtptedmxzhysbwh.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_*** (Supabase anon key)",
+    "DATABASE_URL": "postgresql pooler port 6543 (for Prisma runtime)",
+    "DIRECT_URL": "postgresql direct port 5432 (for Prisma migrations)",
+    "R2_ACCOUNT_ID": "e39b08da1503e4a4249ddad0219e819f",
+    "R2_ACCESS_KEY_ID": "set",
+    "R2_SECRET_ACCESS_KEY": "set",
+    "R2_BUCKET_NAME": "tiem-nha-bee",
+    "R2_PUBLIC_URL": "https://e39b08da1503e4a4249ddad0219e819f.r2.cloudflarestorage.com"
+  },
+  "database_schema": {
+    "summary": "Chỉ có 1 bảng: products - lưu thông tin sản phẩm handmade",
+    "orm_file": "prisma/schema.prisma",
+    "tables": [
+      {
+        "name": "products",
+        "columns": [
+          { "name": "id", "type": "uuid", "note": "Primary Key, auto-generated" },
+          { "name": "name", "type": "text", "note": "Tên sản phẩm, bắt buộc" },
+          { "name": "slug", "type": "text", "note": "URL-friendly name, unique" },
+          { "name": "description", "type": "text", "note": "Mô tả, tùy chọn" },
+          { "name": "price", "type": "decimal", "note": "Giá VNĐ, tùy chọn (null = Liên hệ)" },
+          { "name": "cover_image", "type": "text", "note": "URL ảnh bìa trên R2" },
+          { "name": "images", "type": "json", "note": "Mảng URL các ảnh phụ, default []" },
+          { "name": "created_at", "type": "timestamptz", "note": "Auto set on insert" }
+        ],
+        "rls": {
+          "enabled": true,
+          "policies": [
+            "Public can SELECT (anyone)",
+            "Authenticated can INSERT, UPDATE, DELETE (admin only)"
+          ]
+        }
+      }
+    ]
+  },
+  "api_endpoints": [
     {
-      "date": "2026-04-30",
-      "decision": "Use Next.js App Router for modern architecture and performance.",
-      "reason": "Requested by user."
-    },
-    {
-      "date": "2026-04-30",
-      "decision": "Use Supabase for DB and Auth.",
-      "reason": "Best for free-tier and developer experience."
-    },
-    {
-      "date": "2026-04-30",
-      "decision": "Use Cloudflare R2 for image storage.",
-      "reason": "S3-compatible, cost-effective, and requested."
+      "method": "POST",
+      "path": "/api/upload/presigned",
+      "explained": "Tạo presigned URL để upload ảnh lên Cloudflare R2 trực tiếp từ browser",
+      "auth": "Không bắt buộc (nhưng nên bảo vệ)",
+      "file": "app/api/upload/presigned/route.ts"
     }
+  ],
+  "file_structure": {
+    "app/(public)/page.tsx": "Trang chủ - danh sách sản phẩm (ISR revalidate 60s)",
+    "app/(public)/san-pham/[slug]/page.tsx": "Chi tiết sản phẩm theo slug",
+    "app/(admin)/layout.tsx": "Layout admin: sidebar cố định + main scroll",
+    "app/(admin)/admin/login/page.tsx": "Trang đăng nhập admin",
+    "app/(admin)/admin/products/page.tsx": "Danh sách sản phẩm (admin table)",
+    "app/(admin)/admin/products/create/page.tsx": "Trang tạo sản phẩm mới",
+    "app/(admin)/admin/products/edit/[id]/page.tsx": "Trang sửa sản phẩm",
+    "components/ProductForm.tsx": "Form thêm/sửa sản phẩm (react-hook-form + zod)",
+    "components/ProductCard.tsx": "Card hiển thị sản phẩm trên trang public",
+    "components/ImageUploader.tsx": "Upload ảnh lên R2 (compress trước khi upload)",
+    "components/DeleteProductButton.tsx": "Nút xóa có AlertDialog confirm (shadcn)",
+    "components/ui/": "Thư mục shadcn/ui components",
+    "lib/supabase/server.ts": "Supabase client cho Server Components",
+    "lib/supabase/client.ts": "Supabase client cho Client Components",
+    "lib/r2Client.ts": "AWS S3 client cho Cloudflare R2",
+    "middleware.ts": "Route protection: redirect /admin/* về /admin/login nếu chưa đăng nhập",
+    "prisma/schema.prisma": "Prisma schema định nghĩa bảng products"
+  },
+  "shadcn_components_installed": [
+    "button", "input", "label", "table", "dropdown-menu",
+    "alert-dialog", "sonner"
+  ],
+  "known_issues": [
+    {
+      "issue": "tailwindcss-animate @plugin gây lỗi với Turbopack",
+      "solution": "Đã xóa dòng @plugin khỏi globals.css. Animations cơ bản vẫn hoạt động."
+    },
+    {
+      "issue": "middleware.ts deprecated - Next.js 16+ dùng proxy.ts",
+      "solution": "Chưa xử lý, middleware vẫn hoạt động nhưng có warning"
+    },
+    {
+      "issue": "Nút Xóa (Delete) trước đây bị lỗi onClick trong Server Component",
+      "solution": "Đã tách thành DeleteProductButton ('use client') với AlertDialog"
+    }
+  ],
+  "business_rules": [
+    "Không có giỏ hàng, không có thanh toán",
+    "price = null thì hiển thị 'Liên hệ'",
+    "Ảnh đầu tiên upload = cover_image tự động",
+    "Chỉ admin đăng nhập mới thêm/sửa/xóa sản phẩm",
+    "slug tự động generate từ name khi blur (dùng slugify)"
   ]
 }
