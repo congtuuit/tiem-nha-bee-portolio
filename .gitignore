@@ -46,3 +46,4 @@ next-env.d.ts
 # Prisma scripts
 setup-rls.ts
 .env
+package-lock.json

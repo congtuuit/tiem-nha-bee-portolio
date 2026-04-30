@@ -27,7 +27,7 @@ export function DeleteProductButton({ id, name }: { id: string, name: string }) 
     try {
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
-      
+
       toast.success(`Đã xóa sản phẩm "${name}"`);
       router.refresh();
     } catch (error) {
@@ -40,9 +40,9 @@ export function DeleteProductButton({ id, name }: { id: string, name: string }) 
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
+      <AlertDialogTrigger>
         <button
-          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+          className="cursor-pointer p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
           title="Xóa"
         >
           <Trash2 className="w-4 h-4" />
@@ -57,13 +57,13 @@ export function DeleteProductButton({ id, name }: { id: string, name: string }) 
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting}>Hủy</AlertDialogCancel>
-          <AlertDialogAction 
+          <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
               handleDelete();
             }}
             disabled={isDeleting}
-            className="bg-red-600 hover:bg-red-700"
+            className="cursor-pointer bg-red-600 hover:bg-red-700"
           >
             {isDeleting ? "Đang xóa..." : "Xóa sản phẩm"}
           </AlertDialogAction>
