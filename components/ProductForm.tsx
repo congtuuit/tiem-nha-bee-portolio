@@ -9,6 +9,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import slugify from "slugify";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 const productSchema = z.object({
   name: z.string().min(2, "Tên sản phẩm quá ngắn"),
@@ -62,9 +65,10 @@ export function ProductForm({ initialData }: { initialData?: Product }) {
 
       router.push("/admin/products");
       router.refresh();
+      toast.success(initialData ? "Đã cập nhật sản phẩm thành công!" : "Đã thêm sản phẩm mới thành công!");
     } catch (error) {
       console.error("Lỗi khi lưu sản phẩm:", error);
-      alert("Có lỗi xảy ra, vui lòng thử lại.");
+      toast.error("Có lỗi xảy ra khi lưu sản phẩm, vui lòng thử lại.");
     } finally {
       setIsSubmitting(false);
     }
@@ -96,69 +100,100 @@ export function ProductForm({ initialData }: { initialData?: Product }) {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl bg-white p-6 rounded-xl shadow-sm border border-neutral-200">
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1">Tên sản phẩm *</label>
-          <input
-            {...form.register("name")}
-            onBlur={handleNameBlur}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
-            placeholder="Nhập tên sản phẩm"
-          />
-          {form.formState.errors.name && <p className="text-red-500 text-sm mt-1">{form.formState.errors.name.message}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1">Đường dẫn (Slug) *</label>
-          <input
-            {...form.register("slug")}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
-            placeholder="duong-dan-san-pham"
-          />
-          {form.formState.errors.slug && <p className="text-red-500 text-sm mt-1">{form.formState.errors.slug.message}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1">Giá (VNĐ)</label>
-          <input
-            type="number"
-            {...form.register("price", { 
-              setValueAs: (v) => v === "" || Number.isNaN(Number(v)) ? "" : Number(v) 
-            })}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
-            placeholder="Bỏ trống nếu muốn hiển thị 'Liên hệ'"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1">Mô tả chi tiết</label>
-          <textarea
-            {...form.register("description")}
-            rows={5}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
-            placeholder="Mô tả sản phẩm, chất liệu, kích thước..."
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-2">Hình ảnh sản phẩm</label>
-          <ImageUploader onUploadSuccess={handleImageUpload} existingImages={currentImages} />
-          {/* Custom remove buttons for images */}
-          {currentImages.length > 0 && (
-            <div className="flex gap-2 mt-2 flex-wrap">
-              {currentImages.map((url, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => handleRemoveImage(idx)}
-                  className="text-xs text-red-500 hover:underline"
-                >
-                  Xóa ảnh {idx + 1}
-                </button>
-              ))}
+    <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-4xl">
+      <div className="bg-white p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Cột trái: Thông tin cơ bản */}
+          <div className="lg:col-span-2 space-y-6">
+            <h2 className="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4">Thông tin cơ bản</h2>
+            
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Tên sản phẩm *</label>
+              <input
+                {...form.register("name")}
+                onBlur={handleNameBlur}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all text-slate-800"
+                placeholder="Ví dụ: Nến thơm tinh dầu sả chanh"
+              />
+              {form.formState.errors.name && <p className="text-red-500 text-sm mt-1.5">{form.formState.errors.name.message}</p>}
             </div>
-          )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Đường dẫn (Slug) *</label>
+                <input
+                  {...form.register("slug")}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all text-slate-500"
+                  placeholder="nen-thom-tinh-dau"
+                />
+                {form.formState.errors.slug && <p className="text-red-500 text-sm mt-1.5">{form.formState.errors.slug.message}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Giá bán (VNĐ)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">đ</span>
+                  <input
+                    type="number"
+                    {...form.register("price", { 
+                      setValueAs: (v) => v === "" || Number.isNaN(Number(v)) ? "" : Number(v) 
+                    })}
+                    className="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all font-medium text-slate-800"
+                    placeholder="Để trống = Liên hệ"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Mô tả chi tiết</label>
+              <textarea
+                {...form.register("description")}
+                rows={6}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all text-slate-800 resize-none"
+                placeholder="Mô tả về chất liệu, kích thước, công dụng..."
+              />
+            </div>
+          </div>
+
+          {/* Cột phải: Hình ảnh */}
+          <div className="space-y-6">
+            <h2 className="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4">Hình ảnh</h2>
+            
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 border-dashed">
+              <label className="block text-sm font-semibold text-slate-700 mb-3">Thư viện ảnh</label>
+              <ImageUploader onUploadSuccess={handleImageUpload} existingImages={currentImages} />
+              
+              {currentImages.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-slate-200/60">
+                  <p className="text-xs text-slate-500 mb-2">Ảnh đã tải lên ({currentImages.length})</p>
+                  <div className="flex flex-col gap-2">
+                    {currentImages.map((url, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-white p-2 rounded-lg border border-slate-100 shadow-sm">
+                        <span className="text-xs text-slate-500 truncate w-32">Ảnh {idx + 1}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(idx)}
+                          className="text-xs font-medium text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2 py-1 rounded"
+                        >
+                          Xóa
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="bg-amber-50 p-4 rounded-2xl border border-amber-100">
+              <h3 className="text-sm font-bold text-amber-800 mb-1">Mẹo nhỏ</h3>
+              <p className="text-xs text-amber-700 leading-relaxed">
+                Ảnh đầu tiên sẽ tự động được chọn làm ảnh bìa (Cover Image) hiển thị ở trang chủ. Hãy tải ảnh đẹp nhất lên đầu tiên nhé!
+              </p>
+            </div>
+          </div>
+          
         </div>
       </div>
 
