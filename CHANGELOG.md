@@ -21,6 +21,10 @@
 - **Image 404**: Cấu hình `remotePatterns` trong `next.config.ts` để hiển thị ảnh từ Unsplash và R2.
 - **PDP UI Bug**: Sửa lỗi crash do thiếu biến `contactUrl` trong trang chi tiết.
 - **Layout Overflow**: Fix lỗi Carousel tràn chiều ngang gây xuất hiện thanh cuộn.
+- **Build Fail (TypeScript)**:
+    - Sửa lỗi type `SheetTrigger` do dùng sai prop `asChild` của Base UI (thay bằng `render`).
+    - Sửa lỗi type mismatch `images` trong `ProductForm` (Zod schema alignment).
+- **Next.js Deprecation**: Di chuyển `middleware.ts` sang `proxy.ts` để tuân thủ tiêu chuẩn Next.js 16.
 
 ---
 *Ghi chú: Phiên làm việc tập trung vào UI/UX và tối ưu hóa tốc độ tải trang public.*

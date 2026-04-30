@@ -2,7 +2,7 @@
   "meta": {
     "schema_version": "1.1.0",
     "awf_version": "4.0.2",
-    "last_updated": "2026-04-30T22:40:00+07:00",
+    "last_updated": "2026-04-30T23:02:00+07:00",
     "project_root": "d:/git/tiem-nha-bee-portolio"
   },
   "project": {
@@ -66,7 +66,8 @@
     "components/ui/ImageWithSkeleton.tsx": "Component ảnh tối ưu: Lazy Load + Skeleton",
     "components/ProductCarousel.tsx": "Carousel sản phẩm liên quan (Swiper + Custom Nav)",
     "components/MobileFilters.tsx": "Bộ lọc mobile dạng trượt (shadcn Sheet)",
-    "prisma/seed.ts": "Script sinh 25 sản phẩm mẫu"
+    "prisma/seed.ts": "Script sinh 25 sản phẩm mẫu",
+    "proxy.ts": "Middleware xử lý Auth và Redirect (Next.js 16 Proxy convention)"
   },
   "shadcn_components_installed": [
     "button", "input", "label", "table", "dropdown-menu",
@@ -87,6 +88,14 @@
     {
       "issue": "Image 404 Domain Config",
       "solution": "Khai báo images.unsplash.com và R2 domain trong next.config.ts"
+    },
+    {
+      "issue": "Build fail: Base UI asChild",
+      "solution": "Dùng prop 'render' thay cho 'asChild' trong components/MobileFilters.tsx"
+    },
+    {
+      "issue": "Next.js 16 Middleware Deprecation",
+      "solution": "Đổi tên middleware.ts thành proxy.ts và export function proxy"
     }
   ]
 }
