@@ -1,0 +1,40 @@
+{
+  "project": {
+    "name": "tiem-nha-bee-portfolio",
+    "description": "Handmade product showcase website with admin dashboard, optimized for free-tier deployment.",
+    "created_at": "2026-04-30T08:52:37+07:00"
+  },
+  "tech_stack": [
+    "Next.js 14+ (App Router)",
+    "TypeScript",
+    "TailwindCSS",
+    "Supabase (DB + Auth)",
+    "Cloudflare R2 (image storage via S3 API)",
+    "Zod (validation)",
+    "React Hook Form (forms)"
+  ],
+  "features": [
+    "Public product showcase",
+    "Admin dashboard for CRUD products",
+    "Image upload to Cloudflare R2",
+    "SEO optimization",
+    "Responsive design"
+  ],
+  "decisions": [
+    {
+      "date": "2026-04-30",
+      "decision": "Use Next.js App Router for modern architecture and performance.",
+      "reason": "Requested by user."
+    },
+    {
+      "date": "2026-04-30",
+      "decision": "Use Supabase for DB and Auth.",
+      "reason": "Best for free-tier and developer experience."
+    },
+    {
+      "date": "2026-04-30",
+      "decision": "Use Cloudflare R2 for image storage.",
+      "reason": "S3-compatible, cost-effective, and requested."
+    }
+  ]
+}
