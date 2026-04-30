@@ -6,9 +6,11 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { getShopConfig } from "@/lib/config";
 import Image from "next/image";
 import Link from "next/link";
-import { MessageCircle, ShoppingBag } from "lucide-react";
+import { MessageCircle, ShoppingBag, Info, Heart } from "lucide-react";
 import { ZaloIcon, FacebookIcon } from "@/components/Icons";
 import { cn } from "@/lib/utils";
+import { ProductCard } from "@/components/ProductCard";
+import { ProductCarousel } from "@/components/ProductCarousel";
 
 export const revalidate = 60; // ISR
 
@@ -40,6 +42,7 @@ export default async function ProductDetailPage({ params }: Props) {
   const resolvedParams = await params;
   const product = await prisma.products.findUnique({
     where: { slug: resolvedParams.slug },
+    include: { category: true }
   });
 
   if (!product) {
@@ -48,19 +51,20 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const shopConfig = await getShopConfig();
 
+  // Fetch related products (same category or similar name)
   const relatedProducts = await prisma.products.findMany({
     where: {
       AND: [
         { id: { not: product.id } },
         {
           OR: [
-            { name: { contains: product.name.split(' ')[0], mode: 'insensitive' } },
-            { description: { contains: product.name.split(' ')[0], mode: 'insensitive' } }
+            { category_id: product.category_id },
+            { name: { contains: product.name.split(' ')[0], mode: 'insensitive' } }
           ]
         }
       ]
     },
-    take: 10,
+    take: 20,
     orderBy: { created_at: 'desc' },
   });
 
@@ -76,30 +80,28 @@ export default async function ProductDetailPage({ params }: Props) {
   const isFacebook = contactUrl.includes("facebook.com") || contactUrl.includes("m.me");
 
   return (
-    <div className="space-y-12">
-      <Breadcrumbs 
+    <div className="space-y-12 pb-20">
+      <Breadcrumbs
         items={[
           { label: "Sản phẩm", href: "/san-pham" },
           { label: product.name }
-        ]} 
+        ]}
       />
 
-      <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
+      <div className="grid md:grid-cols-2 gap-12 lg:gap-16 items-start">
         {/* Gallery */}
         <ProductGallery images={allImages} productName={product.name} />
 
         {/* Info */}
-        <div className="space-y-8">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-4 tracking-tight">{product.name}</h1>
-            <p className="text-2xl font-bold text-amber-600">{priceFormatted}</p>
-          </div>
-
-          <div className="prose prose-neutral max-w-none">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-2">Mô tả sản phẩm</h3>
-            <p className="whitespace-pre-wrap leading-relaxed text-neutral-600">
-              {product.description || "Chưa có mô tả chi tiết cho sản phẩm này."}
-            </p>
+        <div className="space-y-8 sticky top-24">
+          <div className="space-y-4">
+            {product.category && (
+              <span className="inline-block px-3 py-1 bg-amber-50 text-amber-600 text-xs font-bold rounded-full uppercase tracking-wider">
+                {product.category.name}
+              </span>
+            )}
+            <h1 className="text-3xl md:text-5xl font-extrabold text-neutral-900 tracking-tight leading-tight">{product.name}</h1>
+            <p className="text-3xl font-bold text-amber-600">{priceFormatted}</p>
           </div>
 
           <div className="pt-8 space-y-4 border-t border-neutral-100">
@@ -108,54 +110,64 @@ export default async function ProductDetailPage({ params }: Props) {
               target="_blank"
               rel="noopener noreferrer"
               className={cn(
-                "inline-flex items-center justify-center gap-2 w-full px-8 py-4 text-lg font-bold text-white rounded-2xl transition-all shadow-lg active:scale-[0.98]",
+                "inline-flex items-center justify-center gap-3 w-full px-8 py-5 text-lg font-bold text-white rounded-[2rem] transition-all shadow-xl active:scale-[0.98] group",
                 isFacebook ? "bg-[#0866FF] hover:bg-[#0055D4] shadow-[#0866FF]/20" :
-                isZalo ? "bg-[#0068FF] hover:bg-[#0055D4] shadow-[#0068FF]/20" :
-                "bg-amber-500 hover:bg-amber-600 shadow-amber-500/20"
+                  isZalo ? "bg-[#0068FF] hover:bg-[#0055D4] shadow-[#0068FF]/20" :
+                    "bg-neutral-900 hover:bg-amber-600 shadow-neutral-900/20"
               )}
             >
               {isZalo ? <ZaloIcon size={24} /> : isFacebook ? <FacebookIcon size={24} /> : <MessageCircle className="w-6 h-6" />}
               Liên hệ tư vấn / Đặt hàng
             </a>
-            <p className="text-sm text-neutral-500 flex items-center justify-center gap-2">
-              <ShoppingBag className="w-4 h-4 text-amber-400" />
-              Nhận thiết kế riêng theo yêu cầu của khách hàng
-            </p>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 bg-neutral-50 rounded-2xl flex items-center gap-3">
+                <ShoppingBag className="w-5 h-5 text-amber-500" />
+                <span className="text-xs font-medium text-neutral-600">Thiết kế theo yêu cầu</span>
+              </div>
+              <div className="p-4 bg-neutral-50 rounded-2xl flex items-center gap-3">
+                <Heart className="w-5 h-5 text-red-500" />
+                <span className="text-xs font-medium text-neutral-600">Tỉ mỉ từng mũi len</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Detailed Description Section */}
+      <div className="pt-12 border-t border-neutral-100">
+        <div className="w-full">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+              <Info className="w-5 h-5 text-amber-600" />
+            </div>
+            <h2 className="text-md font-bold text-neutral-900">Mô tả chi tiết</h2>
+          </div>
+
+          <div className="bg-white p-6 rounded-md border border-neutral-100 shadow-sm">
+            <div className="prose prose-neutral max-w-none prose-p:leading-relaxed prose-p:text-neutral-600">
+              <p className="whitespace-pre-wrap">
+                {product.description || "Chưa có mô tả chi tiết cho sản phẩm này."}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Related Products */}
       {relatedProducts.length > 0 && (
-        <div className="space-y-8 pt-12 border-t border-neutral-100">
+        <div className="space-y-10 pt-12 border-t border-neutral-100">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-neutral-900">Sản phẩm tương tự</h2>
-            <Link href="/san-pham" className="text-sm font-medium text-amber-600 hover:underline">Xem tất cả</Link>
+            <div className="space-y-1">
+              <h2 className="text-2xl font-bold text-neutral-900">Sản phẩm, dịch vụ khác</h2>
+              <p className="text-sm text-neutral-500">Gợi ý dành riêng cho bạn từ Tiệm Nhà Bee</p>
+            </div>
+            <Link href="/san-pham" className="text-sm font-bold text-amber-600 hover:underline px-4 py-2 bg-amber-50 rounded-xl">
+              Xem tất cả
+            </Link>
           </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {relatedProducts.map((p) => (
-              <Link key={p.id} href={`/san-pham/${p.slug}`} className="group space-y-3">
-                <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-neutral-100 border border-neutral-100 transition-all group-hover:shadow-md">
-                  {p.cover_image && (
-                    <Image
-                      src={p.cover_image}
-                      alt={p.name}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      sizes="(max-width: 768px) 50vw, 20vw"
-                    />
-                  )}
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-neutral-800 line-clamp-1 group-hover:text-amber-600 transition-colors">{p.name}</h3>
-                  <p className="text-sm font-semibold text-amber-500">
-                    {p.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(p.price)) : 'Liên hệ'}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
+
+          <ProductCarousel products={relatedProducts} contactUrl={contactUrl} />
         </div>
       )}
     </div>
