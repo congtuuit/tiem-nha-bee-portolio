@@ -27,6 +27,8 @@ export async function POST(req: Request) {
       footer_text: body.footer_text,
       meta_title: body.meta_title,
       meta_description: body.meta_description,
+      map_embed_url: body.map_embed_url,
+      working_hours: body.working_hours,
     };
 
     const config = await prisma.shop_config.upsert({

@@ -29,4 +29,6 @@ model shop_config {
   footer_text   String?
   meta_title    String?
   meta_description String?
+  map_embed_url String?
+  working_hours Json?   @default("[]")
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, Store, Phone, MapPin, Globe, MessageCircle, Info } from "lucide-react";
+import { Save, Store, Phone, MapPin, Globe, MessageCircle, Info, Clock } from "lucide-react";
 import { toast } from "sonner";
 
 import { FacebookIcon, ZaloIcon } from "@/components/Icons";
@@ -18,14 +18,38 @@ export default function SettingsPage() {
     footer_text: "",
     meta_title: "",
     meta_description: "",
+    map_embed_url: "",
+    working_hours: [] as { day: string; open: string; close: string; active: boolean }[],
   });
+
+  const daysOfWeek = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
 
   useEffect(() => {
     fetch("/api/settings")
       .then((res) => res.json())
       .then((data) => {
         if (data && !data.error) {
-          setConfig((prev) => ({ ...prev, ...data }));
+          // Decode map_embed_url if it exists
+          let decodedMap = data.map_embed_url || "";
+          try {
+            if (decodedMap && !decodedMap.includes("<iframe")) {
+              decodedMap = atob(decodedMap);
+            }
+          } catch (e) {
+            console.warn("Failed to decode map_embed_url", e);
+          }
+
+          // Handle working_hours
+          const hours = Array.isArray(data.working_hours) && data.working_hours.length > 0 
+            ? data.working_hours 
+            : daysOfWeek.map(d => ({ day: d, open: "08:00", close: "21:00", active: true }));
+
+          setConfig((prev) => ({ 
+            ...prev, 
+            ...data, 
+            map_embed_url: decodedMap,
+            working_hours: hours
+          }));
         }
       })
       .finally(() => setIsLoading(false));
@@ -35,10 +59,16 @@ export default function SettingsPage() {
     e.preventDefault();
     setIsSaving(true);
     try {
+      // Encode map_embed_url to Base64
+      const dataToSave = {
+        ...config,
+        map_embed_url: config.map_embed_url ? btoa(unescape(encodeURIComponent(config.map_embed_url))) : ""
+      };
+
       const res = await fetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(config),
+        body: JSON.stringify(dataToSave),
       });
 
       if (!res.ok) throw new Error("Failed to update settings");
@@ -161,6 +191,66 @@ export default function SettingsPage() {
         {/* SEO Info */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4 md:col-span-2">
           <div className="flex items-center gap-2 text-amber-600 font-semibold mb-2">
+            <Clock className="w-5 h-5" />
+            <span>Thời gian làm việc</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+            {config.working_hours.map((item, index) => (
+              <div key={item.day} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 hover:bg-slate-100/50 transition-colors">
+                <div className="flex items-center gap-3 min-w-[100px]">
+                  <input
+                    type="checkbox"
+                    id={`day-${index}`}
+                    checked={item.active}
+                    onChange={(e) => {
+                      const newHours = [...config.working_hours];
+                      newHours[index].active = e.target.checked;
+                      setConfig({ ...config, working_hours: newHours });
+                    }}
+                    className="w-4 h-4 rounded text-amber-500 focus:ring-amber-500 cursor-pointer"
+                  />
+                  <label htmlFor={`day-${index}`} className="font-bold text-slate-700 text-sm cursor-pointer select-none">
+                    {item.day}
+                  </label>
+                </div>
+
+                <div className="flex items-center gap-2 flex-grow justify-end">
+                  {item.active ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="time"
+                        value={item.open}
+                        onChange={(e) => {
+                          const newHours = [...config.working_hours];
+                          newHours[index].open = e.target.value;
+                          setConfig({ ...config, working_hours: newHours });
+                        }}
+                        className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium focus:ring-2 focus:ring-amber-500 outline-none"
+                      />
+                      <span className="text-slate-400 font-bold">→</span>
+                      <input
+                        type="time"
+                        value={item.close}
+                        onChange={(e) => {
+                          const newHours = [...config.working_hours];
+                          newHours[index].close = e.target.value;
+                          setConfig({ ...config, working_hours: newHours });
+                        }}
+                        className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium focus:ring-2 focus:ring-amber-500 outline-none"
+                      />
+                    </div>
+                  ) : (
+                    <span className="text-slate-400 text-xs italic px-4">Tạm nghỉ</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* SEO Info */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4 md:col-span-2">
+          <div className="flex items-center gap-2 text-amber-600 font-semibold mb-2">
             <Info className="w-5 h-5" />
             <span>Cấu hình SEO (Mặc định cho toàn trang)</span>
           </div>
@@ -181,6 +271,18 @@ export default function SettingsPage() {
                 onChange={(e) => setConfig({ ...config, meta_description: e.target.value })}
                 className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition-all min-h-[80px]"
               />
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-medium text-slate-700">Mã nhúng bản đồ (Google Maps Iframe)</label>
+              <textarea
+                value={config.map_embed_url || ""}
+                onChange={(e) => setConfig({ ...config, map_embed_url: e.target.value })}
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition-all min-h-[100px]"
+                placeholder='<iframe src="..." ...></iframe>'
+              />
+              <p className="text-[10px] text-slate-400">
+                Bạn có thể dán toàn bộ đoạn mã iframe từ Google Maps vào đây.
+              </p>
             </div>
           </div>
         </div>

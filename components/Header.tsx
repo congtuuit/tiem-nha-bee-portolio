@@ -13,7 +13,7 @@ export function Header() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/san-pham?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
@@ -44,7 +44,7 @@ export function Header() {
           <Link href="/" className="text-sm font-medium text-neutral-600 hover:text-amber-600 transition-colors">
             Trang chủ
           </Link>
-          <Link href="/" className="text-sm font-medium text-neutral-600 hover:text-amber-600 transition-colors">
+          <Link href="/san-pham" className="text-sm font-medium text-neutral-600 hover:text-amber-600 transition-colors">
             Sản phẩm
           </Link>
           <Link href="/lien-he" className="text-sm font-medium text-neutral-600 hover:text-amber-600 transition-colors">
