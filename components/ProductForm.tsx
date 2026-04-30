@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Product } from "@/types/product";
 import { ImageUploader } from "./ImageUploader";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import slugify from "slugify";
@@ -20,6 +20,7 @@ const productSchema = z.object({
   price: z.number().min(0, "Giá không hợp lệ").optional().or(z.literal("")),
   cover_image: z.string().optional(),
   images: z.array(z.string()).default([]),
+  category_id: z.string().optional().or(z.literal("")),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -28,6 +29,14 @@ export function ProductForm({ initialData }: { initialData?: Product }) {
   const router = useRouter();
   const supabase = createClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((res) => res.json())
+      .then((data) => setCategories(data))
+      .catch((err) => console.error("Failed to fetch categories", err));
+  }, []);
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -38,6 +47,7 @@ export function ProductForm({ initialData }: { initialData?: Product }) {
       price: initialData?.price || "",
       cover_image: initialData?.cover_image || "",
       images: initialData?.images || [],
+      category_id: initialData?.category_id || "",
     },
   });
 
@@ -47,6 +57,7 @@ export function ProductForm({ initialData }: { initialData?: Product }) {
       const payload = {
         ...data,
         price: data.price === "" ? null : Number(data.price),
+        category_id: data.category_id === "" ? null : data.category_id,
         cover_image: data.images[0] || "", // Automatically set first image as cover
       };
 
@@ -143,6 +154,21 @@ export function ProductForm({ initialData }: { initialData?: Product }) {
                     placeholder="Để trống = Liên hệ"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Danh mục</label>
+                <select
+                  {...form.register("category_id")}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all text-slate-800 appearance-none"
+                >
+                  <option value="">Chưa phân loại</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 

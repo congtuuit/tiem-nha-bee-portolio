@@ -6,6 +6,7 @@ export interface Product {
   price: number | null;
   cover_image: string;
   images: string[]; // JSONB in DB, but we'll treat as array of URLs
+  category_id?: string;
   created_at: string;
 }
 

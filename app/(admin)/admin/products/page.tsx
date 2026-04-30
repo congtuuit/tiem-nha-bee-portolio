@@ -8,7 +8,7 @@ export default async function AdminProductsPage() {
   const supabase = await createClient();
   const { data: products, error } = await supabase
     .from("products")
-    .select("*")
+    .select("*, category:categories(name)")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -79,7 +79,14 @@ export default async function AdminProductsPage() {
                       </div>
                       <div>
                         <div className="font-semibold text-slate-800 text-base">{product.name}</div>
-                        <div className="text-xs text-slate-500 mt-1 max-w-[200px] truncate">{product.slug}</div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-mono truncate max-w-[100px]">
+                            {product.slug}
+                          </span>
+                          <span className="text-[10px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded font-bold">
+                            {(product.category as any)?.name || "Chưa phân loại"}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </td>
