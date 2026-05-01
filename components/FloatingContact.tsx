@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useState, useEffect } from "react";
 import { ArrowUp, MapPin } from "lucide-react";
 import { ZaloIcon, FacebookIcon } from "@/components/Icons";
@@ -34,10 +36,8 @@ export function FloatingContact({ config }: FloatingContactProps) {
     });
   };
 
-  const mapUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("Tiệm Nhà Bee TP.HCM");
-
   return (
-    <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none">
+    <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 items-end pointer-events-none">
       {/* Social Buttons */}
       <div className="flex flex-col gap-3 pointer-events-auto items-end">
         {/* Zalo */}
@@ -69,10 +69,8 @@ export function FloatingContact({ config }: FloatingContactProps) {
         </div>
 
         {/* Maps */}
-        <a
-          href={mapUrl}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href="/lien-he"
           className="group relative flex items-center gap-3"
         >
           <span className="px-3 py-1.5 bg-white shadow-lg rounded-lg text-xs font-bold text-neutral-600 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0">
@@ -81,7 +79,7 @@ export function FloatingContact({ config }: FloatingContactProps) {
           <div className="w-12 h-12 bg-white rounded-full shadow-2xl flex items-center justify-center text-red-500 hover:scale-110 border border-neutral-100">
             <MapPin className="w-6 h-6" />
           </div>
-        </a>
+        </Link>
       </div>
 
       {/* Back to top */}

@@ -2,6 +2,7 @@ import { getShopConfig } from "@/lib/config";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Phone, MapPin, Mail, MessageCircle, Clock } from "lucide-react";
 import { FacebookIcon, ZaloIcon } from "@/components/Icons";
+import { ContactButton } from "@/components/ContactButton";
 import { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -78,7 +79,13 @@ export default async function ContactPage() {
               </div>
               <div>
                 <h3 className="font-bold text-neutral-900">Zalo</h3>
-                <a href={shopConfig?.zalo_url || "#"} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Chat ngay</a>
+                <ContactButton 
+                  type="zalo" 
+                  value={shopConfig?.zalo_url || shopConfig?.phone || "0704859175"}
+                  className="text-blue-600 hover:underline"
+                >
+                  Chat ngay
+                </ContactButton>
               </div>
             </div>
 
@@ -88,7 +95,13 @@ export default async function ContactPage() {
               </div>
               <div>
                 <h3 className="font-bold text-neutral-900">Facebook</h3>
-                <a href={shopConfig?.facebook_url || "#"} target="_blank" rel="noopener noreferrer" className="text-[#0866FF] hover:underline">Ghé thăm Fanpage</a>
+                <ContactButton 
+                  type="messenger" 
+                  value={shopConfig?.facebook_url || "tiemnhabee"}
+                  className="text-[#0866FF] hover:underline"
+                >
+                  Ghé thăm Fanpage
+                </ContactButton>
               </div>
             </div>
           </div>
