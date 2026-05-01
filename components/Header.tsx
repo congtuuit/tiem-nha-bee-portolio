@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { Search, Menu, X, ShoppingBag } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,7 +13,13 @@ export function Header() {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const searchRef = useRef<HTMLDivElement>(null);
+
+  const isActive = (path: string) => {
+    if (path === "/") return pathname === "/";
+    return pathname.startsWith(path);
+  };
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -147,16 +154,16 @@ export function Header() {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-6">
-          <Link href="/" className="text-sm font-medium text-neutral-600 hover:text-amber-600 transition-colors">
+          <Link href="/" className={cn("text-sm transition-colors", isActive("/") ? "font-bold text-amber-600" : "font-medium text-neutral-600 hover:text-amber-600")}>
             Trang chủ
           </Link>
-          <Link href="/san-pham" className="text-sm font-medium text-neutral-600 hover:text-amber-600 transition-colors">
+          <Link href="/san-pham" className={cn("text-sm transition-colors", isActive("/san-pham") ? "font-bold text-amber-600" : "font-medium text-neutral-600 hover:text-amber-600")}>
             Sản phẩm
           </Link>
-          <Link href="/ve-chung-toi" className="text-sm font-medium text-neutral-600 hover:text-amber-600 transition-colors">
+          <Link href="/ve-chung-toi" className={cn("text-sm transition-colors", isActive("/ve-chung-toi") ? "font-bold text-amber-600" : "font-medium text-neutral-600 hover:text-amber-600")}>
             Về chúng tôi
           </Link>
-          <Link href="/lien-he" className="text-sm font-medium text-neutral-600 hover:text-amber-600 transition-colors">
+          <Link href="/lien-he" className={cn("text-sm transition-colors", isActive("/lien-he") ? "font-bold text-amber-600" : "font-medium text-neutral-600 hover:text-amber-600")}>
             Liên hệ
           </Link>
         </nav>
@@ -185,16 +192,16 @@ export function Header() {
             </button>
           </form>
           <nav className="flex flex-col gap-3">
-            <Link href="/" className="text-base font-medium text-neutral-600" onClick={() => setIsMenuOpen(false)}>
+            <Link href="/" className={cn("text-base transition-colors", isActive("/") ? "font-bold text-amber-600" : "font-medium text-neutral-600")} onClick={() => setIsMenuOpen(false)}>
               Trang chủ
             </Link>
-            <Link href="/san-pham" className="text-base font-medium text-neutral-600" onClick={() => setIsMenuOpen(false)}>
+            <Link href="/san-pham" className={cn("text-base transition-colors", isActive("/san-pham") ? "font-bold text-amber-600" : "font-medium text-neutral-600")} onClick={() => setIsMenuOpen(false)}>
               Sản phẩm
             </Link>
-            <Link href="/ve-chung-toi" className="text-base font-medium text-neutral-600" onClick={() => setIsMenuOpen(false)}>
+            <Link href="/ve-chung-toi" className={cn("text-base transition-colors", isActive("/ve-chung-toi") ? "font-bold text-amber-600" : "font-medium text-neutral-600")} onClick={() => setIsMenuOpen(false)}>
               Về chúng tôi
             </Link>
-            <Link href="/lien-he" className="text-base font-medium text-neutral-600" onClick={() => setIsMenuOpen(false)}>
+            <Link href="/lien-he" className={cn("text-base transition-colors", isActive("/lien-he") ? "font-bold text-amber-600" : "font-medium text-neutral-600")} onClick={() => setIsMenuOpen(false)}>
               Liên hệ
             </Link>
           </nav>
