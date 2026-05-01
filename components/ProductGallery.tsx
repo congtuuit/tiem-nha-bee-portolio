@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ImageWithSkeleton } from "./ui/ImageWithSkeleton";
 import { cn } from "@/lib/utils";
+import { generateImageAlt } from "@/lib/seo";
 
 interface ProductGalleryProps {
   images: string[];
@@ -26,7 +27,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
       <div className="relative aspect-square rounded-2xl overflow-hidden bg-neutral-100 border border-neutral-200 shadow-sm">
         <ImageWithSkeleton
           src={images[selectedImage]}
-          alt={productName}
+          alt={generateImageAlt(productName)}
           fill
           className="object-cover transition-all duration-500 hover:scale-105"
           priority
@@ -55,7 +56,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                   : "border-neutral-200 hover:border-neutral-300"
               )}
             >
-              <ImageWithSkeleton src={img} alt={`${productName} ${idx + 1}`} fill className="object-cover" sizes="80px" />
+              <ImageWithSkeleton src={img} alt={generateImageAlt(productName, idx, "Ảnh thumbnail")} fill className="object-cover" sizes="80px" />
             </div>
           ))}
         </div>

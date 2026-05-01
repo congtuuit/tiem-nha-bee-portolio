@@ -33,8 +33,27 @@ export default async function HomePage() {
 
   const contactUrl = shopConfig?.facebook_url || shopConfig?.zalo_url || "#";
 
+  // LocalBusiness Schema
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": shopConfig?.shop_name || "Tiệm Nhà Bee",
+    "image": shopConfig?.hero_image || "",
+    "telephone": shopConfig?.phone || "",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": shopConfig?.address || "TP. Hồ Chí Minh",
+      "addressCountry": "VN"
+    },
+    "url": process.env.NEXT_PUBLIC_APP_URL || "https://tiemnhabee.com"
+  };
+
   return (
     <div className="space-y-24 pb-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero Section */}
       <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden rounded-[3rem] bg-neutral-900 group">
         {shopConfig?.hero_image ? (

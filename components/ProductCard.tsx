@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { MessageCircle } from 'lucide-react';
 import { ZaloIcon, FacebookIcon } from '@/components/Icons';
 import { cn } from '@/lib/utils';
+import { generateImageAlt } from '@/lib/seo';
 
 interface ProductCardProps {
   product: any; // Using any for simplicity with Prisma types
@@ -24,7 +25,7 @@ export function ProductCard({ product, contactUrl = "https://m.me/tiemnhabee" }:
         {product.cover_image ? (
           <ImageWithSkeleton
             src={product.cover_image}
-            alt={product.name}
+            alt={generateImageAlt(product.name)}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="(max-width: 768px) 50vw, 33vw"
