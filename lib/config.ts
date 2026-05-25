@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "./prisma";
 
 export interface ShopConfig {
@@ -11,7 +12,7 @@ export interface ShopConfig {
   meta_title: string | null;
   meta_description: string | null;
   map_embed_url: string | null;
-  working_hours: any;
+  working_hours: unknown[];
   hero_title: string | null;
   hero_subtitle: string | null;
   hero_image: string | null;
@@ -34,7 +35,7 @@ export const DEFAULT_CONFIG: ShopConfig = {
   hero_image: null,
 };
 
-export async function getShopConfig(): Promise<ShopConfig> {
+export const getShopConfig = cache(async (): Promise<ShopConfig> => {
   try {
     const config = await prisma.shop_config.findUnique({
       where: { id: "default" },
@@ -52,4 +53,4 @@ export async function getShopConfig(): Promise<ShopConfig> {
     console.error("Error fetching shop config:", error);
     return DEFAULT_CONFIG;
   }
-}
+});

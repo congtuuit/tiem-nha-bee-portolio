@@ -93,7 +93,7 @@ export default async function HomePage() {
       </section>
 
       {/* Featured Categories */}
-      <section className="space-y-12">
+      <section className="space-y-12" style={{ display: "none" }}>
         <div className="text-center space-y-4">
           <h2 className="text-3xl md:text-5xl font-black text-neutral-900 tracking-tight">Khám phá Tiệm Bee</h2>
           <p className="text-neutral-500 font-medium">Chúng mình có mọi thứ bạn cần cho niềm đam mê len sợi</p>

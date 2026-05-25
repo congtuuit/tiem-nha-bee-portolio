@@ -1,15 +1,13 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { ProductGallery } from "@/components/ProductGallery";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { getShopConfig } from "@/lib/config";
-import Image from "next/image";
 import Link from "next/link";
 import { MessageCircle, ShoppingBag, Info, Heart } from "lucide-react";
 import { ZaloIcon, FacebookIcon } from "@/components/Icons";
-import { cn } from "@/lib/utils";
-import { ProductCard } from "@/components/ProductCard";
 import { ProductCarousel } from "@/components/ProductCarousel";
 import { getContactUrls } from "@/lib/contact";
 
@@ -19,12 +17,30 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+const getProductDetailBySlug = cache(async (slug: string) => {
+  return prisma.products.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      cover_image: true,
+      images: true,
+      price: true,
+      category_id: true,
+      category: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+});
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
-  const product = await prisma.products.findUnique({
-    where: { slug: resolvedParams.slug },
-    select: { name: true, description: true, cover_image: true },
-  });
+  const product = await getProductDetailBySlug(resolvedParams.slug);
 
   if (!product) {
     return { title: "Không tìm thấy sản phẩm" };
@@ -54,40 +70,47 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductDetailPage({ params }: Props) {
   const resolvedParams = await params;
-  const product = await prisma.products.findUnique({
-    where: { slug: resolvedParams.slug },
-    include: { category: true }
-  });
+  const product = await getProductDetailBySlug(resolvedParams.slug);
 
   if (!product) {
     notFound();
   }
 
-  const shopConfig = await getShopConfig();
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://tiemnhabee.com";
   const productUrl = `${baseUrl}/san-pham/${product.slug}`;
+  const productNameToken = product.name.split(" ").find(Boolean);
+  const relatedConditions = [
+    ...(product.category_id ? [{ category_id: product.category_id }] : []),
+    ...(productNameToken
+      ? [{ name: { contains: productNameToken, mode: "insensitive" as const } }]
+      : []),
+  ];
+
+  const [shopConfig, relatedProducts] = await Promise.all([
+    getShopConfig(),
+    prisma.products.findMany({
+      where: {
+        AND: [
+          { id: { not: product.id } },
+          ...(relatedConditions.length > 0 ? [{ OR: relatedConditions }] : []),
+        ],
+      },
+      take: 12,
+      orderBy: { created_at: "desc" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        price: true,
+        cover_image: true,
+      },
+    }),
+  ]);
 
   const { fbUrl, zaloUrl } = getContactUrls(shopConfig, product.name, productUrl);
   const contactUrl = shopConfig?.facebook_url || shopConfig?.zalo_url || "https://m.me/tiemnhabee";
 
-  // Fetch related products
-  const relatedProducts = await prisma.products.findMany({
-    where: {
-      AND: [
-        { id: { not: product.id } },
-        {
-          OR: [
-            { category_id: product.category_id },
-            { name: { contains: product.name.split(' ')[0], mode: 'insensitive' } }
-          ]
-        }
-      ]
-    },
-    take: 20,
-    orderBy: { created_at: 'desc' },
-  });
-
-  const priceFormatted = product.price
+  const priceFormatted = product.price !== null
     ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(product.price))
     : 'Liên hệ';
 

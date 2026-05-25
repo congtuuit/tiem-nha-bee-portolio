@@ -11,6 +11,7 @@ import { SortSelect } from "@/components/SortSelect";
 import { MobileFilters } from "@/components/MobileFilters";
 import { Suspense } from "react";
 import { ProductListSkeleton } from "@/components/ProductListSkeleton";
+import { Prisma } from "@prisma/client";
 
 export const revalidate = 60;
 
@@ -33,14 +34,29 @@ interface Props {
   }>;
 }
 
+interface CategoryOption {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+}
+
+type ShopConfigData = Awaited<ReturnType<typeof getShopConfig>>;
+
 export default async function ProductsPage({ searchParams }: Props) {
   const params = await searchParams;
-  const shopConfig = await getShopConfig();
-  
-  // Fetch categories at top level for sidebar
-  const allCategories = await prisma.categories.findMany({
-    orderBy: { name: "asc" }
-  });
+  const [shopConfig, allCategories] = await Promise.all([
+    getShopConfig(),
+    prisma.categories.findMany({
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+      },
+    }),
+  ]);
 
   const activeCategory = allCategories.find(c => c.slug === params.category);
 
@@ -91,24 +107,25 @@ async function ProductList({
   allCategories, 
   shopConfig 
 }: { 
-  params: any, 
-  allCategories: any[], 
-  shopConfig: any 
+  params: Awaited<Props["searchParams"]>;
+  allCategories: CategoryOption[];
+  shopConfig: ShopConfigData;
 }) {
   const { search, category, minPrice, maxPrice, sort, page = "1" } = params;
   const pageSize = 20;
   const currentPage = parseInt(page);
+  const activeCategory = allCategories.find(c => c.slug === category);
 
   // Base where clause
-  const where: any = {};
+  const where: Prisma.productsWhereInput = {};
   if (search) {
     where.OR = [
       { name: { contains: search, mode: 'insensitive' } },
       { description: { contains: search, mode: 'insensitive' } }
     ];
   }
-  if (category) {
-    where.category = { slug: category };
+  if (activeCategory) {
+    where.category_id = activeCategory.id;
   }
   if (minPrice || maxPrice) {
     where.price = {};
@@ -117,7 +134,7 @@ async function ProductList({
   }
 
   // Order by
-  const orderBy: any = {};
+  const orderBy: Prisma.productsOrderByWithRelationInput = {};
   if (sort === "price_asc") orderBy.price = "asc";
   else if (sort === "price_desc") orderBy.price = "desc";
   else orderBy.created_at = "desc";
@@ -129,12 +146,17 @@ async function ProductList({
       orderBy,
       skip: (currentPage - 1) * pageSize,
       take: pageSize,
-      include: { category: true }
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        price: true,
+        cover_image: true,
+      },
     }),
     prisma.products.count({ where })
   ]);
 
-  const activeCategory = allCategories.find(c => c.slug === category);
   const totalPages = Math.ceil(totalCount / pageSize);
   const contactUrl = shopConfig?.facebook_url || shopConfig?.zalo_url || "https://m.me/tiemnhabee";
 
