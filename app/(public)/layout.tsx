@@ -9,7 +9,7 @@ export default async function PublicLayout({ children }: { children: React.React
   return (
     <div className="min-h-screen flex flex-col bg-neutral-50/50">
       <Header />
-      <main className="flex-grow max-w-6xl mx-auto px-4 py-8 w-full">
+      <main className="flex-grow max-w-7xl mx-auto px-4 py-8 w-full">
         {children}
       </main>
       <Footer config={config} />

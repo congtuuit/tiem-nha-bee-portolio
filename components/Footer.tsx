@@ -18,7 +18,7 @@ export function Footer({ config }: FooterProps) {
 
   return (
     <footer className="bg-white border-t pt-12 pb-8">
-      <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12">
+      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12">
         {/* Info */}
         <div className="space-y-4">
           <h3 className="text-xl font-bold text-amber-600">{config?.shop_name || "Tiệm Nhà Bee"}</h3>
@@ -79,7 +79,7 @@ export function Footer({ config }: FooterProps) {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 mt-12 pt-8 border-t text-center text-neutral-400 text-xs">
+      <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t text-center text-neutral-400 text-xs">
         &copy; {currentYear} {config?.shop_name || "Tiệm Nhà Bee"}. All rights reserved.
       </div>
     </footer>
