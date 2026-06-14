@@ -153,7 +153,7 @@ async function ProductList({
     async (whereStr: string, orderByStr: string, skip: number, take: number) => {
       const w = JSON.parse(whereStr);
       const o = JSON.parse(orderByStr);
-      return Promise.all([
+      const [rawProducts, count] = await Promise.all([
         prisma.products.findMany({
           where: w,
           orderBy: o,
@@ -170,6 +170,13 @@ async function ProductList({
         }),
         prisma.products.count({ where: w })
       ]);
+
+      const products = rawProducts.map(p => ({
+        ...p,
+        price: p.price ? Number(p.price) : null
+      }));
+
+      return [products, count] as const;
     },
     ['products-list-query'],
     { tags: ['products'] }

@@ -20,7 +20,7 @@ interface Props {
 
 const getProductDetailBySlug = unstable_cache(
   async (slug: string) => {
-    return prisma.products.findUnique({
+    const product = await prisma.products.findUnique({
       where: { slug },
       select: {
         id: true,
@@ -38,6 +38,12 @@ const getProductDetailBySlug = unstable_cache(
         },
       },
     });
+
+    if (!product) return null;
+    return {
+      ...product,
+      price: product.price ? Number(product.price) : null
+    };
   },
   ['product-detail'],
   { tags: ['products'] }
@@ -209,7 +215,7 @@ async function RelatedProductsStream({ product, contactUrl }: { product: any, co
 
   const getRelatedProducts = unstable_cache(
     async () => {
-      return prisma.products.findMany({
+      const rawProducts = await prisma.products.findMany({
         where: {
           AND: [
             { id: { not: product.id } },
@@ -227,6 +233,11 @@ async function RelatedProductsStream({ product, contactUrl }: { product: any, co
           category: { select: { name: true } },
         },
       });
+
+      return rawProducts.map(p => ({
+        ...p,
+        price: p.price ? Number(p.price) : null
+      }));
     },
     [`related-products-${product.id}`],
     { tags: ['products'] }
