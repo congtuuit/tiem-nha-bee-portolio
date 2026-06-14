@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Tag } from "lucide-react";
+import { Plus, Trash2, Tag, Pencil, Save, X } from "lucide-react";
 import { toast } from "sonner";
 import { Loading } from "@/components/Loading";
 
@@ -9,6 +9,7 @@ interface Category {
   id: string;
   name: string;
   slug: string;
+  _count?: { products: number };
 }
 
 export default function CategoriesPage() {
@@ -16,6 +17,8 @@ export default function CategoriesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newName, setNewName] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
 
   const fetchCategories = async () => {
     try {
@@ -62,6 +65,64 @@ export default function CategoriesPage() {
       toast.error("Lỗi khi thêm danh mục");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id: string, count: number = 0) => {
+    if (count > 0) {
+      toast.error(`Không thể xóa danh mục đang chứa ${count} sản phẩm.`);
+      return;
+    }
+    if (!window.confirm("Bạn có chắc chắn muốn xóa danh mục này?")) return;
+
+    try {
+      const res = await fetch(`/api/categories/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Lỗi khi xóa");
+      }
+      toast.success("Đã xóa danh mục!");
+      fetchCategories();
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const startEdit = (cat: Category) => {
+    setEditingId(cat.id);
+    setEditName(cat.name);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditName("");
+  };
+
+  const handleSaveEdit = async (id: string) => {
+    if (!editName.trim()) return;
+    
+    const slug = editName
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[đĐ]/g, "d")
+      .replace(/[^a-z0-9]/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+
+    try {
+      const res = await fetch(`/api/categories/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: editName, slug }),
+      });
+
+      if (!res.ok) throw new Error();
+      toast.success("Đã cập nhật danh mục!");
+      setEditingId(null);
+      fetchCategories();
+    } catch (error) {
+      toast.error("Lỗi khi cập nhật danh mục");
     }
   };
 
@@ -120,14 +181,49 @@ export default function CategoriesPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <Tag className="w-4 h-4 text-amber-500" />
-                        <span className="font-medium text-slate-700">{cat.name}</span>
+                        {editingId === cat.id ? (
+                          <input
+                            type="text"
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            className="px-2 py-1 bg-white border border-slate-200 rounded-md focus:ring-2 focus:ring-amber-500 outline-none text-sm font-medium text-slate-700"
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleSaveEdit(cat.id);
+                              if (e.key === "Escape") cancelEdit();
+                            }}
+                          />
+                        ) : (
+                          <span className="font-medium text-slate-700">{cat.name}</span>
+                        )}
+                        <span className="ml-2 inline-flex items-center justify-center bg-slate-100 text-slate-500 text-xs font-semibold px-2 py-0.5 rounded-full">
+                          {cat._count?.products || 0} SP
+                        </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-500 font-mono">{cat.slug}</td>
+                    <td className="px-6 py-4 text-sm text-slate-500 font-mono">
+                      {editingId === cat.id ? "Sẽ tự động cập nhật..." : cat.slug}
+                    </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="p-2 text-slate-400 hover:text-red-500 transition-colors opacity-50 cursor-not-allowed" title="Chưa hỗ trợ xóa">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {editingId === cat.id ? (
+                        <div className="flex items-center justify-end gap-2">
+                          <button onClick={() => handleSaveEdit(cat.id)} className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors" title="Lưu">
+                            <Save className="w-4 h-4" />
+                          </button>
+                          <button onClick={cancelEdit} className="p-2 text-slate-400 hover:bg-slate-100 rounded-md transition-colors" title="Hủy">
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-end gap-2">
+                          <button onClick={() => startEdit(cat)} className="p-2 text-slate-400 hover:text-blue-500 transition-colors" title="Sửa">
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => handleDelete(cat.id, cat._count?.products)} className="p-2 text-slate-400 hover:text-red-500 transition-colors" title="Xóa">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
