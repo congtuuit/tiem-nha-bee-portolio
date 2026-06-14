@@ -27,7 +27,7 @@ export function MobileFilters({ categories }: MobileFiltersProps) {
           </Button>
         }
       />
-      <SheetContent side="left" className="w-[300px] overflow-y-auto">
+      <SheetContent side="left" className="w-[300px] overflow-y-auto pb-24 px-4 pt-6">
         <SheetHeader className="mb-6">
           <SheetTitle className="text-xl font-black">Bộ lọc sản phẩm</SheetTitle>
         </SheetHeader>
