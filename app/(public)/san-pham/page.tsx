@@ -39,6 +39,7 @@ interface CategoryOption {
   name: string;
   slug: string;
   description: string | null;
+  _count?: { products: number };
 }
 
 type ShopConfigData = Awaited<ReturnType<typeof getShopConfig>>;
@@ -48,12 +49,16 @@ export default async function ProductsPage({ searchParams }: Props) {
   const [shopConfig, allCategories] = await Promise.all([
     getShopConfig(),
     prisma.categories.findMany({
+      where: {
+        name: { not: "Chưa phân loại" }
+      },
       orderBy: { name: "asc" },
       select: {
         id: true,
         name: true,
         slug: true,
         description: true,
+        _count: { select: { products: true } },
       },
     }),
   ]);
@@ -152,6 +157,7 @@ async function ProductList({
         slug: true,
         price: true,
         cover_image: true,
+        category: { select: { name: true } },
       },
     }),
     prisma.products.count({ where })

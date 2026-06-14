@@ -23,6 +23,9 @@ export default async function HomePage() {
   const products = await prisma.products.findMany({
     take: 8,
     orderBy: { created_at: "desc" },
+    include: {
+      category: { select: { name: true } },
+    },
   });
 
   // Fetch Parent Categories for featured section

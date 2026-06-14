@@ -37,7 +37,7 @@ export function ProductCard({ product, contactUrl = "https://m.me/tiemnhabee" }:
         )}
         <div className="absolute top-2 right-2">
           <span className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-[10px] font-bold text-amber-600 shadow-sm">
-            Handmade
+            {product.category?.name || "Handmade"}
           </span>
         </div>
       </Link>

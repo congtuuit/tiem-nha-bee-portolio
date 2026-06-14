@@ -8,6 +8,7 @@ interface Category {
   id: string;
   name: string;
   slug: string;
+  _count?: { products: number };
 }
 
 interface ProductFiltersProps {
@@ -61,9 +62,14 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
             <Link 
               key={cat.id}
               href={getFilterUrl({ category: cat.slug })}
-              className={`text-sm py-1 hover:text-amber-600 transition-colors ${category === cat.slug ? 'text-amber-600 font-bold' : 'text-neutral-600'}`}
+              className={`flex items-center justify-between text-sm py-1 hover:text-amber-600 transition-colors ${category === cat.slug ? 'text-amber-600 font-bold' : 'text-neutral-600'}`}
             >
-              {cat.name}
+              <span>{cat.name}</span>
+              {cat._count !== undefined && (
+                <span className="text-xs bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded-full">
+                  {cat._count.products}
+                </span>
+              )}
             </Link>
           ))}
         </div>
