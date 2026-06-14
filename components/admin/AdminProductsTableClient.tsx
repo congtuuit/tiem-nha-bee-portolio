@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { QuickCategorySelect } from "@/components/admin/QuickCategorySelect";
 
 const PAGE_SIZE = 10;
 const SEARCH_DEBOUNCE_MS = 500;
@@ -24,6 +25,7 @@ type ProductRow = {
   cover_image: string | null;
   status: string;
   created_at: string;
+  category_id: string | null;
   category: {
     name: string;
   } | null;
@@ -402,9 +404,11 @@ export function AdminProductsTableClient({
                             <span className="max-w-[140px] truncate rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-600">
                               {product.slug}
                             </span>
-                            <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">
-                              {product.category?.name ?? "Chưa phân loại"}
-                            </span>
+                            <QuickCategorySelect 
+                              productId={product.id}
+                              currentCategoryId={product.category_id}
+                              categories={categories}
+                            />
                           </div>
                         </div>
                       </div>

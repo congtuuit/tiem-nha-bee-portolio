@@ -111,6 +111,7 @@ export default async function AdminProductsPage(props: {
         cover_image: true,
         status: true,
         created_at: true,
+        category_id: true,
         category: {
           select: {
             name: true,
@@ -138,6 +139,7 @@ export default async function AdminProductsPage(props: {
             cover_image: true,
             status: true,
             created_at: true,
+            category_id: true,
             category: {
               select: {
                 name: true,
