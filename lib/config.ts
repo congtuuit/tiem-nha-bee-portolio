@@ -1,4 +1,4 @@
-import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
 
 export interface ShopConfig {
@@ -37,22 +37,26 @@ export const DEFAULT_CONFIG: ShopConfig = {
   ga_measurement_id: null,
 };
 
-export const getShopConfig = cache(async (): Promise<ShopConfig> => {
-  try {
-    const config = await prisma.shop_config.findUnique({
-      where: { id: "default" },
-    });
+export const getShopConfig = unstable_cache(
+  async (): Promise<ShopConfig> => {
+    try {
+      const config = await prisma.shop_config.findUnique({
+        where: { id: "default" },
+      });
 
-    if (!config) {
+      if (!config) {
+        return DEFAULT_CONFIG;
+      }
+
+      return {
+        ...DEFAULT_CONFIG,
+        ...config,
+      } as ShopConfig;
+    } catch (error) {
+      console.error("Error fetching shop config:", error);
       return DEFAULT_CONFIG;
     }
-
-    return {
-      ...DEFAULT_CONFIG,
-      ...config,
-    } as ShopConfig;
-  } catch (error) {
-    console.error("Error fetching shop config:", error);
-    return DEFAULT_CONFIG;
-  }
-});
+  },
+  ["shop_config"],
+  { tags: ["shop_config"] }
+);

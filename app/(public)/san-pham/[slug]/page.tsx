@@ -1,4 +1,5 @@
-import { cache } from "react";
+import { Suspense } from "react";
+import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
@@ -12,32 +13,35 @@ import { ProductCarousel } from "@/components/ProductCarousel";
 import { getContactUrls } from "@/lib/contact";
 import { ContactActions } from "@/components/ContactActions";
 
-export const revalidate = 60; // ISR
-
+// We rely on unstable_cache and revalidatePath instead of ISR revalidate time
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-const getProductDetailBySlug = cache(async (slug: string) => {
-  return prisma.products.findUnique({
-    where: { slug },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      description: true,
-      cover_image: true,
-      images: true,
-      price: true,
-      category_id: true,
-      category: {
-        select: {
-          name: true,
+const getProductDetailBySlug = unstable_cache(
+  async (slug: string) => {
+    return prisma.products.findUnique({
+      where: { slug },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        cover_image: true,
+        images: true,
+        price: true,
+        category_id: true,
+        category: {
+          select: {
+            name: true,
+          },
         },
       },
-    },
-  });
-});
+    });
+  },
+  ['product-detail'],
+  { tags: ['products'] }
+);
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
@@ -79,35 +83,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://tiemnhabee.com";
   const productUrl = `${baseUrl}/san-pham/${product.slug}`;
-  const productNameToken = product.name.split(" ").find(Boolean);
-  const relatedConditions = [
-    ...(product.category_id ? [{ category_id: product.category_id }] : []),
-    ...(productNameToken
-      ? [{ name: { contains: productNameToken, mode: "insensitive" as const } }]
-      : []),
-  ];
-
-  const [shopConfig, relatedProducts] = await Promise.all([
-    getShopConfig(),
-    prisma.products.findMany({
-      where: {
-        AND: [
-          { id: { not: product.id } },
-          ...(relatedConditions.length > 0 ? [{ OR: relatedConditions }] : []),
-        ],
-      },
-      take: 12,
-      orderBy: { created_at: "desc" },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        price: true,
-        cover_image: true,
-        category: { select: { name: true } },
-      },
-    }),
-  ]);
+  const shopConfig = await getShopConfig();
 
   const { fbUrl, zaloUrl } = getContactUrls(shopConfig, product.name, productUrl);
   const contactUrl = shopConfig?.facebook_url || shopConfig?.zalo_url || "https://m.me/tiemnhabee";
@@ -214,21 +190,65 @@ export default async function ProductDetailPage({ params }: Props) {
       </div>
 
       {/* Related Products */}
-      {relatedProducts.length > 0 && (
-        <div className="space-y-10 pt-12 border-t border-neutral-100">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h2 className="text-2xl font-bold text-neutral-900">Sản phẩm khác</h2>
-              <p className="text-sm text-neutral-500">Gợi ý dành riêng cho bạn từ Tiệm Nhà Bee</p>
-            </div>
-            <Link href="/san-pham" className="text-sm font-bold text-amber-600 hover:underline px-4 py-2 bg-amber-50 rounded-xl">
-              Xem tất cả
-            </Link>
-          </div>
+      <Suspense fallback={<div className="h-64 mt-12 animate-pulse bg-neutral-100 rounded-2xl border border-neutral-200"></div>}>
+        <RelatedProductsStream product={product} contactUrl={contactUrl} />
+      </Suspense>
+    </div>
+  );
+}
 
-          <ProductCarousel products={relatedProducts} contactUrl={contactUrl} />
+// Suspended component for related products
+async function RelatedProductsStream({ product, contactUrl }: { product: any, contactUrl: string }) {
+  const productNameToken = product.name.split(" ").find(Boolean);
+  const relatedConditions = [
+    ...(product.category_id ? [{ category_id: product.category_id }] : []),
+    ...(productNameToken
+      ? [{ name: { contains: productNameToken, mode: "insensitive" as const } }]
+      : []),
+  ];
+
+  const getRelatedProducts = unstable_cache(
+    async () => {
+      return prisma.products.findMany({
+        where: {
+          AND: [
+            { id: { not: product.id } },
+            ...(relatedConditions.length > 0 ? [{ OR: relatedConditions }] : []),
+          ],
+        },
+        take: 12,
+        orderBy: { created_at: "desc" },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          price: true,
+          cover_image: true,
+          category: { select: { name: true } },
+        },
+      });
+    },
+    [`related-products-${product.id}`],
+    { tags: ['products'] }
+  );
+
+  const relatedProducts = await getRelatedProducts();
+
+  if (relatedProducts.length === 0) return null;
+
+  return (
+    <div className="space-y-10 pt-12 border-t border-neutral-100">
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-bold text-neutral-900">Sản phẩm khác</h2>
+          <p className="text-sm text-neutral-500">Gợi ý dành riêng cho bạn từ Tiệm Nhà Bee</p>
         </div>
-      )}
+        <Link href="/san-pham" className="text-sm font-bold text-amber-600 hover:underline px-4 py-2 bg-amber-50 rounded-xl">
+          Xem tất cả
+        </Link>
+      </div>
+
+      <ProductCarousel products={relatedProducts} contactUrl={contactUrl} />
     </div>
   );
 }

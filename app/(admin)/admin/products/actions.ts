@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export async function updateProductCategory(productId: string, categoryId: string | null) {
   try {
@@ -11,6 +11,9 @@ export async function updateProductCategory(productId: string, categoryId: strin
     });
 
     revalidatePath("/admin/products");
+    revalidatePath("/san-pham", "layout");
+    revalidatePath("/", "layout");
+    revalidateTag("products");
     return { success: true };
   } catch (error) {
     console.error("Failed to update category:", error);

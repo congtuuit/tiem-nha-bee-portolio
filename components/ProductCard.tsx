@@ -8,9 +8,10 @@ import { generateImageAlt } from '@/lib/seo';
 interface ProductCardProps {
   product: any; // Using any for simplicity with Prisma types
   contactUrl?: string;
+  priority?: boolean;
 }
 
-export function ProductCard({ product, contactUrl = "https://m.me/tiemnhabee" }: ProductCardProps) {
+export function ProductCard({ product, contactUrl = "https://m.me/tiemnhabee", priority = false }: ProductCardProps) {
   const isZalo = contactUrl.includes("zalo.me");
   const isFacebook = contactUrl.includes("facebook.com") || contactUrl.includes("m.me");
   
@@ -27,6 +28,7 @@ export function ProductCard({ product, contactUrl = "https://m.me/tiemnhabee" }:
             src={product.cover_image}
             alt={generateImageAlt(product.name)}
             fill
+            priority={priority}
             className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
             sizes="(max-width: 768px) 50vw, 33vw"
           />

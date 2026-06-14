@@ -12,8 +12,9 @@ import { MobileFilters } from "@/components/MobileFilters";
 import { Suspense } from "react";
 import { ProductListSkeleton } from "@/components/ProductListSkeleton";
 import { Prisma } from "@prisma/client";
+import { unstable_cache } from "next/cache";
 
-export const revalidate = 60;
+export const revalidate = false; // Disable ISR, rely on default caching or On-Demand Revalidation
 
 export async function generateMetadata(): Promise<Metadata> {
   const shopConfig = await getShopConfig();
@@ -148,23 +149,38 @@ async function ProductList({
   else orderBy.created_at = "desc";
 
   // Fetch products and count
-  const [products, totalCount] = await Promise.all([
-    prisma.products.findMany({
-      where,
-      orderBy,
-      skip: (currentPage - 1) * pageSize,
-      take: pageSize,
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        price: true,
-        cover_image: true,
-        category: { select: { name: true } },
-      },
-    }),
-    prisma.products.count({ where })
-  ]);
+  const getCachedProducts = unstable_cache(
+    async (whereStr: string, orderByStr: string, skip: number, take: number) => {
+      const w = JSON.parse(whereStr);
+      const o = JSON.parse(orderByStr);
+      return Promise.all([
+        prisma.products.findMany({
+          where: w,
+          orderBy: o,
+          skip,
+          take,
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            price: true,
+            cover_image: true,
+            category: { select: { name: true } },
+          },
+        }),
+        prisma.products.count({ where: w })
+      ]);
+    },
+    ['products-list-query'],
+    { tags: ['products'] }
+  );
+
+  const [products, totalCount] = await getCachedProducts(
+    JSON.stringify(where),
+    JSON.stringify(orderBy),
+    (currentPage - 1) * pageSize,
+    pageSize
+  );
 
   const totalPages = Math.ceil(totalCount / pageSize);
   const contactUrl = shopConfig?.facebook_url || shopConfig?.zalo_url || "https://m.me/tiemnhabee";
@@ -278,8 +294,8 @@ async function ProductList({
 
       {/* Product Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} contactUrl={contactUrl} />
+        {products.map((product, index) => (
+          <ProductCard key={product.id} product={product} contactUrl={contactUrl} priority={index < 4} />
         ))}
         {!products.length && (
           <div className="col-span-full py-24 text-center space-y-6 bg-white rounded-[3rem] border border-dashed border-neutral-200">
