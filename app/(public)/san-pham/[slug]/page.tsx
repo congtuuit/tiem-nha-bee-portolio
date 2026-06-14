@@ -104,6 +104,7 @@ export default async function ProductDetailPage({ params }: Props) {
         slug: true,
         price: true,
         cover_image: true,
+        category: { select: { name: true } },
       },
     }),
   ]);
@@ -171,11 +172,11 @@ export default async function ProductDetailPage({ params }: Props) {
           </div>
 
           <div className="pt-8 space-y-4 border-t border-neutral-100">
-            <ContactActions 
-              fbUrl={fbUrl} 
-              zaloUrl={zaloUrl} 
-              defaultContactUrl="https://m.me/tiemnhabee" 
-              productName={product.name} 
+            <ContactActions
+              fbUrl={fbUrl}
+              zaloUrl={zaloUrl}
+              defaultContactUrl="https://m.me/tiemnhabee"
+              productName={product.name}
             />
 
             <div className="grid grid-cols-2 gap-4">
@@ -217,7 +218,7 @@ export default async function ProductDetailPage({ params }: Props) {
         <div className="space-y-10 pt-12 border-t border-neutral-100">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h2 className="text-2xl font-bold text-neutral-900">Sản phẩm, dịch vụ khác</h2>
+              <h2 className="text-2xl font-bold text-neutral-900">Sản phẩm khác</h2>
               <p className="text-sm text-neutral-500">Gợi ý dành riêng cho bạn từ Tiệm Nhà Bee</p>
             </div>
             <Link href="/san-pham" className="text-sm font-bold text-amber-600 hover:underline px-4 py-2 bg-amber-50 rounded-xl">
