@@ -75,6 +75,9 @@ export function Footer({ config }: FooterProps) {
             <li>
               <Link href="/chinh-sach" className="text-neutral-600 text-sm hover:text-amber-600">Chính sách mua hàng</Link>
             </li>
+            <li>
+              <Link href="/return-policy" className="text-neutral-600 text-sm hover:text-amber-600">Chính sách đổi trả</Link>
+            </li>
           </ul>
         </div>
       </div>

@@ -78,7 +78,17 @@
     "Storefront UI: Giao diện premium, mobile-first",
     "Smart Filters: Lọc theo danh mục, giá, tìm kiếm",
     "Image Optimization: Lazy loading và Skeleton placeholders toàn trang",
-    "Product Seeding: 25 records mẫu đa dạng"
+    "Product Seeding: 25 records mẫu đa dạng",
+    "SEO Optimization: Schema Markup JSON-LD đầy đủ (Product, ItemList)",
+    "Tracking: Google Analytics 4 với Event Tracking (click_zalo, click_messenger)",
+    "Google Merchant Center: Tự động generate XML Product Feed (/api/feed/google-merchant.xml)"
+  ],
+  "api_endpoints": [
+    {
+      "path": "/api/feed/google-merchant.xml",
+      "method": "GET",
+      "explained": "Trả về danh sách sản phẩm active dưới dạng XML RSS 2.0 chuẩn Google Merchant Center, tự động lấy origin làm base URL."
+    }
   ],
   "known_issues": [
     {
