@@ -47,3 +47,4 @@ next-env.d.ts
 setup-rls.ts
 .env
 package-lock.json
+data

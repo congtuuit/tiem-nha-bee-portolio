@@ -3,8 +3,8 @@ const path = require("path");
 
 loadEnvFile(path.resolve(process.cwd(), ".env"));
 
-const DEFAULT_BASE_DIR = "D:\\BeeShop\\data";
-const DEFAULT_API_URL = "https://tiemnhabee.vercel.app/api/admin/bulk-import";
+const DEFAULT_BASE_DIR = path.join(__dirname, "..", "data", "zalo_export");
+const DEFAULT_API_URL = "http://localhost:3000/api/admin/bulk-import";
 const DEFAULT_CATEGORY_PATH = ["Chưa phân loại"];
 const DEFAULT_IMPORT_SECRET = "bee-secret-import-key";
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);

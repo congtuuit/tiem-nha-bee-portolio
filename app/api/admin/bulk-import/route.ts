@@ -73,18 +73,35 @@ export async function POST(req: NextRequest) {
       lastCategoryId = category.id;
     }
 
-    // 3. Upload Images
+    if (!lastCategoryId) {
+      return NextResponse.json({ error: "Could not resolve category" }, { status: 400 });
+    }
+
+    // 3. Check for Existing Product
+    const existingProduct = await prisma.products.findFirst({
+      where: { name: productName }
+    });
+
+    if (existingProduct) {
+      const product = await prisma.products.update({
+        where: { id: existingProduct.id },
+        data: {
+          price: price,
+          description: description,
+          category_id: lastCategoryId
+        }
+      });
+      return NextResponse.json({ success: true, product, action: "updated" });
+    }
+
+    // 4. Upload Images (Only for new products)
     const imageUrls: string[] = [];
     for (const image of images) {
       const url = await uploadToR2(image);
       imageUrls.push(url);
     }
 
-    // 4. Create Product
-    if (!lastCategoryId) {
-      return NextResponse.json({ error: "Could not resolve category" }, { status: 400 });
-    }
-
+    // 5. Create Product
     const productSlug = slugify(productName, { lower: true, locale: 'vi' });
     const product = await prisma.products.create({
       data: {
@@ -99,7 +116,7 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    return NextResponse.json({ success: true, product });
+    return NextResponse.json({ success: true, product, action: "created" });
 
   } catch (error) {
     console.error("Import error:", error);
