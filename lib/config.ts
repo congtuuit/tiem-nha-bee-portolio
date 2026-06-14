@@ -16,6 +16,7 @@ export interface ShopConfig {
   hero_title: string | null;
   hero_subtitle: string | null;
   hero_image: string | null;
+  ga_measurement_id: string | null;
 }
 
 export const DEFAULT_CONFIG: ShopConfig = {
@@ -33,6 +34,7 @@ export const DEFAULT_CONFIG: ShopConfig = {
   hero_title: "Gửi gắm yêu thương trong từng mũi len",
   hero_subtitle: "Sản phẩm handmade tỉ mỉ và nguyên liệu len sợi chất lượng cao cho cộng đồng yêu đan móc.",
   hero_image: null,
+  ga_measurement_id: null,
 };
 
 export const getShopConfig = cache(async (): Promise<ShopConfig> => {

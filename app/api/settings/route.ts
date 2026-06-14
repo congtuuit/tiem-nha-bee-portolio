@@ -32,6 +32,7 @@ export async function POST(req: Request) {
       hero_title: body.hero_title,
       hero_subtitle: body.hero_subtitle,
       hero_image: body.hero_image,
+      ga_measurement_id: body.ga_measurement_id,
     };
 
     const config = await prisma.shop_config.upsert({

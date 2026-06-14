@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { getShopConfig } from "@/lib/config";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -50,11 +51,13 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const shopConfig = await getShopConfig();
+
   return (
     <html
       lang="vi"
@@ -64,6 +67,7 @@ export default function RootLayout({
         {children}
         <Toaster richColors />
       </body>
+      {shopConfig?.ga_measurement_id && <GoogleAnalytics gaId={shopConfig.ga_measurement_id} />}
     </html>
   );
 }

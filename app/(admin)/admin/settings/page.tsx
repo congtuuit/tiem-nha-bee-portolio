@@ -24,6 +24,7 @@ export default function SettingsPage() {
     hero_title: "",
     hero_subtitle: "",
     hero_image: "",
+    ga_measurement_id: "",
   });
 
   const daysOfWeek = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
@@ -312,7 +313,7 @@ export default function SettingsPage() {
                 className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition-all"
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium text-slate-700">Mô tả SEO (Meta Description)</label>
               <textarea
                 value={config.meta_description || ""}
@@ -320,7 +321,23 @@ export default function SettingsPage() {
                 className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition-all min-h-[80px]"
               />
             </div>
-            <div className="space-y-2 md:col-span-2">
+            <div className="space-y-2 md:col-span-2 pt-4 border-t border-slate-100">
+              <div className="flex items-center gap-2 text-amber-600 font-semibold mb-2">
+                <span>Google Analytics 4 (GA4) Tracking</span>
+              </div>
+              <label className="text-sm font-medium text-slate-700">Mã đo lường (Measurement ID)</label>
+              <input
+                type="text"
+                value={config.ga_measurement_id || ""}
+                onChange={(e) => setConfig({ ...config, ga_measurement_id: e.target.value })}
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition-all"
+                placeholder="G-XXXXXXXXXX"
+              />
+              <p className="text-[11px] text-slate-500 mt-1">
+                Nhập mã bắt đầu bằng "G-" để tự động kích hoạt GA4 theo dõi traffic và các sự kiện (clicks) trên trang chi tiết sản phẩm.
+              </p>
+            </div>
+            <div className="space-y-2 md:col-span-2 pt-4 border-t border-slate-100">
               <label className="text-sm font-medium text-slate-700">Mã nhúng bản đồ (Google Maps Iframe)</label>
               <textarea
                 value={config.map_embed_url || ""}

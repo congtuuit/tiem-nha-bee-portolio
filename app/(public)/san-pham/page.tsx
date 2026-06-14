@@ -183,8 +183,24 @@ async function ProductList({
     return `/san-pham?${searchParams.toString()}`;
   };
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://tiemnhabee.com";
+  
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": products.map((product, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "url": `${baseUrl}/san-pham/${product.slug}`
+    }))
+  };
+
   return (
     <div className="space-y-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Top Bar: Results, Sorting & Mobile Filters */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-neutral-100 shadow-sm">
         <div className="flex items-center gap-4">

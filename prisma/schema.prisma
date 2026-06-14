@@ -51,4 +51,5 @@ model shop_config {
   hero_title    String? @default("Gửi gắm yêu thương trong từng mũi len")
   hero_subtitle String? @default("Sản phẩm handmade tỉ mỉ và nguyên liệu len sợi chất lượng cao")
   hero_image    String?
+  ga_measurement_id String?
 }

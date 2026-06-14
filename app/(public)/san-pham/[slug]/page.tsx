@@ -10,6 +10,7 @@ import { MessageCircle, ShoppingBag, Info, Heart } from "lucide-react";
 import { ZaloIcon, FacebookIcon } from "@/components/Icons";
 import { ProductCarousel } from "@/components/ProductCarousel";
 import { getContactUrls } from "@/lib/contact";
+import { ContactActions } from "@/components/ContactActions";
 
 export const revalidate = 60; // ISR
 
@@ -124,6 +125,7 @@ export default async function ProductDetailPage({ params }: Props) {
     "name": product.name,
     "image": allImages,
     "description": product.description,
+    "sku": product.id,
     "brand": {
       "@type": "Brand",
       "name": "Tiệm Nhà Bee"
@@ -133,12 +135,8 @@ export default async function ProductDetailPage({ params }: Props) {
       "url": productUrl,
       "priceCurrency": "VND",
       "price": product.price ? Number(product.price) : 0,
-      "availability": "https://schema.org/InStock"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "5.0",
-      "reviewCount": "24"
+      "availability": "https://schema.org/InStock",
+      "itemCondition": "https://schema.org/NewCondition"
     }
   };
 
@@ -173,43 +171,12 @@ export default async function ProductDetailPage({ params }: Props) {
           </div>
 
           <div className="pt-8 space-y-4 border-t border-neutral-100">
-            {/* Facebook Messenger Button */}
-            {fbUrl && (
-              <a
-                href={fbUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-3 w-full px-5 py-3 text-lg font-bold text-white rounded-[2rem] transition-all shadow-xl active:scale-[0.98] group bg-[#0866FF] hover:bg-[#0055D4] shadow-[#0866FF]/20"
-              >
-                <FacebookIcon size={24} />
-                Liên hệ qua Facebook
-              </a>
-            )}
-
-            {/* Zalo Button */}
-            {zaloUrl && (
-              <a
-                href={zaloUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-3 w-full px-5 py-3 text-lg font-bold text-white rounded-[2rem] transition-all shadow-xl active:scale-[0.98] group bg-[#0068FF] hover:bg-[#0055D4] shadow-[#0068FF]/20"
-              >
-                <ZaloIcon size={24} />
-                Liên hệ qua Zalo
-              </a>
-            )}
-
-            {!fbUrl && !zaloUrl && (
-              <a
-                href="https://m.me/tiemnhabee"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-3 w-full px-8 py-5 text-lg font-bold text-white rounded-[2rem] transition-all shadow-xl active:scale-[0.98] group bg-neutral-900 hover:bg-amber-600 shadow-neutral-900/20"
-              >
-                <MessageCircle className="w-6 h-6" />
-                Liên hệ tư vấn
-              </a>
-            )}
+            <ContactActions 
+              fbUrl={fbUrl} 
+              zaloUrl={zaloUrl} 
+              defaultContactUrl="https://m.me/tiemnhabee" 
+              productName={product.name} 
+            />
 
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-neutral-50 rounded-2xl flex items-center gap-3">
