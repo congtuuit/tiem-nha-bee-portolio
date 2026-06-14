@@ -52,7 +52,10 @@ export default async function ProductsPage({ searchParams }: Props) {
       where: {
         name: { not: "Chưa phân loại" }
       },
-      orderBy: { name: "asc" },
+      orderBy: [
+        { products: { _count: "desc" } },
+        { name: "asc" }
+      ],
       select: {
         id: true,
         name: true,
@@ -93,7 +96,7 @@ export default async function ProductsPage({ searchParams }: Props) {
         </aside>
 
         {/* Main Content */}
-        <div className="space-y-6">
+        <div className="space-y-6 min-w-0">
           <Suspense fallback={<ProductListSkeleton />}>
             <ProductList 
               params={params} 
@@ -183,6 +186,15 @@ async function ProductList({
     return `/san-pham?${searchParams.toString()}`;
   };
 
+  const getCategoryUrl = (slug: string | null) => {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value && key !== "category" && key !== "page") searchParams.set(key, value as string);
+    });
+    if (slug) searchParams.set("category", slug);
+    return `/san-pham?${searchParams.toString()}`;
+  };
+
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://tiemnhabee.com";
   
   const jsonLd = {
@@ -213,6 +225,29 @@ async function ProductList({
         <div className="flex items-center gap-4">
           <SortSelect />
         </div>
+      </div>
+
+      {/* Mobile Categories Scrollbar (Horizontal) */}
+      <div className="md:hidden flex overflow-x-auto gap-3 pb-2 w-full hide-scrollbar snap-x">
+        <Link
+          href={getCategoryUrl(null)}
+          className={`shrink-0 snap-start px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm ${
+            !category ? "bg-amber-500 text-white border border-amber-500" : "bg-white text-neutral-600 border border-neutral-200"
+          }`}
+        >
+          Tất cả
+        </Link>
+        {allCategories.map((cat) => (
+          <Link
+            key={cat.id}
+            href={getCategoryUrl(cat.slug)}
+            className={`shrink-0 snap-start px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm flex items-center gap-2 ${
+              category === cat.slug ? "bg-amber-500 text-white border border-amber-500" : "bg-white text-neutral-600 border border-neutral-200"
+            }`}
+          >
+            {cat.name}
+          </Link>
+        ))}
       </div>
 
       {/* Active Filter Tags */}
