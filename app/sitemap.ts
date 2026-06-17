@@ -2,10 +2,11 @@ import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://tiemnhabee.com";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.tiemnhabee.store";
 
-  // Fetch all products
+  // Fetch all active products
   const products = await prisma.products.findMany({
+    where: { status: 'active' },
     select: { slug: true, created_at: true },
   });
 
@@ -16,25 +17,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  const staticRoutes = [
+    '',
+    '/san-pham',
+    '/lien-he',
+    '/ve-chung-toi',
+    '/return-policy'
+  ].map((route) => ({
+    url: `${baseUrl}${route}`,
+    lastModified: new Date(),
+    changeFrequency: route === '' ? 'daily' as const : 'weekly' as const,
+    priority: route === '' ? 1 : 0.9,
+  }));
+
   return [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/san-pham`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/lien-he`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
+    ...staticRoutes,
     ...productUrls,
   ];
 }
