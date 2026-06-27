@@ -2,6 +2,7 @@ import { Store, LogOut } from "lucide-react";
 import { AdminNav } from "./AdminNav";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import pkg from "../package.json";
 
 export async function AdminSidebar() {
   const supabase = await createClient();
@@ -41,6 +42,9 @@ export async function AdminSidebar() {
               Đăng xuất
             </button>
           </form>
+        </div>
+        <div className="mt-3 text-center">
+          <span className="text-[10px] text-slate-400 font-medium">Phiên bản {pkg.version}</span>
         </div>
       </div>
     </div>
