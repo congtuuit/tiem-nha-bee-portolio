@@ -2,7 +2,7 @@
   "meta": {
     "schema_version": "1.1.0",
     "awf_version": "4.0.2",
-    "last_updated": "2026-04-30T23:02:00+07:00",
+    "last_updated": "2026-06-17T15:10:00+07:00",
     "project_root": "d:/git/tiem-nha-bee-portolio"
   },
   "project": {
@@ -32,7 +32,7 @@
     "image_compression": "browser-image-compression"
   },
   "database_schema": {
-    "summary": "Gồm 3 bảng chính: products, categories (đa cấp), và shop_config (CMS động)",
+    "summary": "Gồm 4 bảng chính: products, categories, shop_config và posts (cho Blog)",
     "orm_file": "prisma/schema.prisma",
     "tables": [
       {
@@ -56,6 +56,17 @@
           { "name": "meta_title", "type": "text" },
           { "name": "meta_description", "type": "text" }
         ]
+      },
+      {
+        "name": "posts",
+        "columns": [
+          { "name": "id", "type": "uuid" },
+          { "name": "title", "type": "text" },
+          { "name": "slug", "type": "text" },
+          { "name": "content", "type": "text" },
+          { "name": "status", "type": "text" },
+          { "name": "seo_keywords", "type": "text" }
+        ]
       }
     ]
   },
@@ -63,6 +74,8 @@
     "app/(public)/page.tsx": "Trang chủ - CMS động, Featured Categories, Hero section",
     "app/(public)/san-pham/page.tsx": "Listing page - Lọc đa năng (Mobile Sheet), Sort, Active Tags",
     "app/(public)/san-pham/[slug]/page.tsx": "PDP - Gallery, Related Products Carousel",
+    "app/(public)/blog/page.tsx": "Trang danh sách Blog",
+    "app/(public)/blog/[slug]/page.tsx": "Chi tiết bài viết Blog chuẩn SEO",
     "components/ui/ImageWithSkeleton.tsx": "Component ảnh tối ưu: Lazy Load + Skeleton",
     "components/ProductCarousel.tsx": "Carousel sản phẩm liên quan (Swiper + Custom Nav)",
     "components/MobileFilters.tsx": "Bộ lọc mobile dạng trượt (shadcn Sheet)",
@@ -79,15 +92,27 @@
     "Smart Filters: Lọc theo danh mục, giá, tìm kiếm",
     "Image Optimization: Lazy loading và Skeleton placeholders toàn trang",
     "Product Seeding: 25 records mẫu đa dạng",
-    "SEO Optimization: Schema Markup JSON-LD đầy đủ (Product, ItemList)",
+    "SEO Optimization: Schema Markup JSON-LD đầy đủ (Product, ItemList, Article)",
     "Tracking: Google Analytics 4 với Event Tracking (click_zalo, click_messenger)",
-    "Google Merchant Center: Tự động generate XML Product Feed (/api/feed/google-merchant.xml)"
+    "Google Merchant Center: Tự động generate XML Product Feed",
+    "AI Blog CMS: Hệ thống viết bài tự động bằng AI từ nguồn tham khảo, có Rich Text Editor",
+    "External CMS API: Mở API để auto đẩy bài viết vào hệ thống từ job bên ngoài"
   ],
   "api_endpoints": [
     {
       "path": "/api/feed/google-merchant.xml",
       "method": "GET",
       "explained": "Trả về danh sách sản phẩm active dưới dạng XML RSS 2.0 chuẩn Google Merchant Center, tự động lấy origin làm base URL."
+    },
+    {
+      "path": "/api/admin/ai-generate",
+      "method": "POST",
+      "explained": "Fetch HTML từ URL tham khảo và gửi cho Gemini 2.0 Flash để tạo nội dung blog chuẩn SEO."
+    },
+    {
+      "path": "/api/posts",
+      "method": "POST",
+      "explained": "API nội bộ bảo mật (x-api-key) để tự động tạo bài viết từ job/cron bên ngoài."
     }
   ],
   "known_issues": [

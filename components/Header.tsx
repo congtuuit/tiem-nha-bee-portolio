@@ -163,6 +163,9 @@ export function Header() {
           <Link href="/ve-chung-toi" className={cn("text-sm transition-colors", isActive("/ve-chung-toi") ? "font-bold text-amber-600" : "font-medium text-neutral-600 hover:text-amber-600")}>
             Về chúng tôi
           </Link>
+          <Link href="/blog" className={cn("text-sm transition-colors", isActive("/blog") ? "font-bold text-amber-600" : "font-medium text-neutral-600 hover:text-amber-600")}>
+            Blog
+          </Link>
           <Link href="/lien-he" className={cn("text-sm transition-colors", isActive("/lien-he") ? "font-bold text-amber-600" : "font-medium text-neutral-600 hover:text-amber-600")}>
             Liên hệ
           </Link>
@@ -200,6 +203,9 @@ export function Header() {
             </Link>
             <Link href="/ve-chung-toi" className={cn("text-base transition-colors", isActive("/ve-chung-toi") ? "font-bold text-amber-600" : "font-medium text-neutral-600")} onClick={() => setIsMenuOpen(false)}>
               Về chúng tôi
+            </Link>
+            <Link href="/blog" className={cn("text-base transition-colors", isActive("/blog") ? "font-bold text-amber-600" : "font-medium text-neutral-600")} onClick={() => setIsMenuOpen(false)}>
+              Blog
             </Link>
             <Link href="/lien-he" className={cn("text-base transition-colors", isActive("/lien-he") ? "font-bold text-amber-600" : "font-medium text-neutral-600")} onClick={() => setIsMenuOpen(false)}>
               Liên hệ

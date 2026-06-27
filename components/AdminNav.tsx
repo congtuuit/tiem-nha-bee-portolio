@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Package, LayoutDashboard, Settings, Tag } from "lucide-react";
+import { Package, LayoutDashboard, Settings, Tag, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function AdminNav() {
@@ -18,6 +18,11 @@ export function AdminNav() {
       href: "/admin/categories",
       label: "Danh mục",
       icon: Tag,
+    },
+    {
+      href: "/admin/posts",
+      label: "Bài viết",
+      icon: FileText,
     },
     {
       href: "/admin/stats", // Giả sử route này tồn tại hoặc sẽ có

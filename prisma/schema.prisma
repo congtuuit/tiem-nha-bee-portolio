@@ -53,3 +53,18 @@ model shop_config {
   hero_image    String?
   ga_measurement_id String?
 }
+
+model posts {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title            String
+  slug             String    @unique
+  content          String?   @db.Text
+  excerpt          String?
+  cover_image      String?
+  status           String    @default("draft") // draft | published
+  seo_title        String?
+  seo_description  String?
+  seo_keywords     String?
+  created_at       DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime  @updatedAt @db.Timestamptz(6)
+}
