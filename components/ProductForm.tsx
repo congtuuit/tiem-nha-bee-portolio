@@ -31,13 +31,6 @@ export function ProductForm({ initialData }: { initialData?: Product }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
 
-  useEffect(() => {
-    fetch("/api/categories")
-      .then((res) => res.json())
-      .then((data) => setCategories(data))
-      .catch((err) => console.error("Failed to fetch categories", err));
-  }, []);
-
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -50,6 +43,18 @@ export function ProductForm({ initialData }: { initialData?: Product }) {
       category_id: initialData?.category_id || "",
     },
   });
+
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((res) => res.json())
+      .then((data) => {
+        setCategories(data);
+        if (initialData?.category_id) {
+          form.setValue("category_id", initialData.category_id);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch categories", err));
+  }, [initialData, form]);
 
   const onSubmit = async (data: ProductFormValues) => {
     setIsSubmitting(true);

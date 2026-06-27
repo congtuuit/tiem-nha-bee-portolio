@@ -7,6 +7,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { QuickCategorySelect } from "@/components/admin/QuickCategorySelect";
+import { QuickPriceEdit } from "@/components/admin/QuickPriceEdit";
+import { QuickNameEdit } from "@/components/admin/QuickNameEdit";
 
 const PAGE_SIZE = 10;
 const SEARCH_DEBOUNCE_MS = 500;
@@ -385,16 +387,21 @@ export function AdminProductsTableClient({
                       )}
                     </div>
                     <div className="flex-1 min-w-0 flex flex-col justify-center">
-                      <div className="truncate text-base font-semibold text-slate-800">{product.name}</div>
-                      <div className="mt-1 flex flex-wrap items-center gap-2">
-                        <span className="max-w-[120px] truncate rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-600">
+                      <div className="mb-1">
+                        <QuickNameEdit productId={product.id} currentName={product.name} />
+                      </div>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <span className="max-w-[100px] truncate rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-600">
                           {product.slug}
                         </span>
+                        <QuickCategorySelect 
+                          productId={product.id}
+                          currentCategoryId={product.category_id}
+                          categories={categories}
+                        />
                       </div>
-                      <div className="mt-1">
-                        <span className="font-semibold text-amber-700 text-sm">
-                          {formatPrice(product.price)}
-                        </span>
+                      <div className="mt-2">
+                        <QuickPriceEdit productId={product.id} currentPrice={product.price} />
                       </div>
                     </div>
                     <div className="flex flex-col gap-2 items-end justify-start flex-shrink-0 -mr-2">
