@@ -37,7 +37,7 @@ export async function createPost(data: {
 
     revalidatePath("/admin/posts");
     revalidatePath("/blog");
-    revalidateTag("posts");
+    revalidateTag("posts", "max");
 
     return { success: true, post };
   } catch (error) {
@@ -68,7 +68,7 @@ export async function updatePost(
     revalidatePath("/admin/posts");
     revalidatePath(`/blog/${post.slug}`);
     revalidatePath("/blog");
-    revalidateTag("posts");
+    revalidateTag("posts", "max");
 
     return { success: true, post };
   } catch (error) {
@@ -83,7 +83,7 @@ export async function deletePost(id: string) {
 
     revalidatePath("/admin/posts");
     revalidatePath("/blog");
-    revalidateTag("posts");
+    revalidateTag("posts", "max");
 
     return { success: true };
   } catch (error) {

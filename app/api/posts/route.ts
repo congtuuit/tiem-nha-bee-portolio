@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     // 5. Xóa Cache (Revalidate)
     revalidatePath("/admin/posts");
     revalidatePath("/blog");
-    revalidateTag("posts");
+    revalidateTag("posts", "max");
 
     // 6. Trả về kết quả
     return NextResponse.json({
