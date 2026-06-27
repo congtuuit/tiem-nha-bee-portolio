@@ -50,7 +50,63 @@ export default async function AdminPostsPage() {
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* Mobile view (Cards) */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {posts.map((post) => (
+              <div key={post.id} className="p-4 space-y-3">
+                <div className="flex justify-between items-start gap-4">
+                  <div className="space-y-1 flex-1">
+                    <p className="font-semibold text-slate-800 line-clamp-2 leading-snug">{post.title}</p>
+                    <p className="text-xs text-slate-400 line-clamp-1">/blog/{post.slug}</p>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0 -mt-1 -mr-2">
+                    <Link
+                      href={`/admin/posts/edit/${post.id}`}
+                      className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Link>
+                    <form
+                      action={async () => {
+                        "use server";
+                        await deletePost(post.id);
+                      }}
+                    >
+                      <button
+                        type="submit"
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </form>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-xs pt-2">
+                  {post.status === "published" ? (
+                    <span className="inline-flex items-center gap-1 text-green-600 font-semibold bg-green-50 px-2 py-1 rounded-md">
+                      <CheckCircle className="w-3 h-3" />
+                      Đã xuất bản
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-amber-600 font-semibold bg-amber-50 px-2 py-1 rounded-md">
+                      <Clock className="w-3 h-3" />
+                      Bản nháp
+                    </span>
+                  )}
+                  <span className="text-slate-500">
+                    {new Intl.DateTimeFormat("vi-VN", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    }).format(post.created_at)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop view (Table) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50">
@@ -121,6 +177,14 @@ export default async function AdminPostsPage() {
           </div>
         </div>
       )}
+
+      {/* FAB for Mobile */}
+      <Link
+        href="/admin/posts/create"
+        className="md:hidden fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-amber-600 text-white shadow-lg shadow-amber-600/30 transition-transform active:scale-95"
+      >
+        <Plus className="h-6 w-6" />
+      </Link>
     </div>
   );
 }
