@@ -39,7 +39,8 @@ export function ProductListClient({ allCategories, contactUrl }: ProductListClie
   const queryString = searchParams.toString();
   const { data, error, isLoading } = useSWR(
     `/api/products${queryString ? `?${queryString}` : ""}`,
-    fetcher
+    fetcher,
+    { keepPreviousData: true }
   );
 
   const getPageUrl = (p: number) => {
