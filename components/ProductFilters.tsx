@@ -39,11 +39,11 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
   };
 
   const handlePriceBlur = (key: string, value: string) => {
-    router.push(getFilterUrl({ [key]: value }));
+    router.push(getFilterUrl({ [key]: value }), { scroll: false });
   };
 
   const handleSortChange = (value: string) => {
-    router.push(getFilterUrl({ sort: value }));
+    router.push(getFilterUrl({ sort: value }), { scroll: false });
   };
 
   return (
