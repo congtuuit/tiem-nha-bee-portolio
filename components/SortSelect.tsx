@@ -15,7 +15,7 @@ export function SortSelect() {
       params.delete("sort");
     }
     params.set("page", "1");
-    router.push(`/san-pham?${params.toString()}`);
+    router.push(`/san-pham?${params.toString()}`, { scroll: false });
   };
 
   return (
