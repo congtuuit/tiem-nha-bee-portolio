@@ -1,136 +1,26 @@
 {
-  "meta": {
-    "schema_version": "1.1.0",
-    "awf_version": "4.0.2",
-    "last_updated": "2026-06-17T15:10:00+07:00",
-    "project_root": "d:/git/tiem-nha-bee-portolio"
+  "meta": { "schema_version": "1.1.0", "awf_version": "3.3.0" },
+  "project": { 
+    "name": "tiem-nha-bee-portolio",
+    "type": "E-commerce Website",
+    "status": "Optimization Phase"
   },
-  "project": {
-    "name": "Tiệm Nhà Bee Portfolio",
-    "type": "Next.js Web App",
-    "status": "in_development",
-    "description": "Website showcase sản phẩm thủ công mỹ nghệ handmade. Không có giỏ hàng, không thanh toán. Chỉ xem sản phẩm (public) và quản lý CRUD sản phẩm (admin).",
-    "repo": "d:/git/tiem-nha-bee-portolio",
-    "local_url": "http://localhost:3000",
-    "deployment_target": "Vercel (free tier)"
+  "tech_stack": { 
+    "frontend": { "framework": "Next.js 15 (App Router)", "styling": "TailwindCSS", "data_fetching": "SWR" },
+    "backend": { "runtime": "Node.js (Next.js API Routes)", "database": "Prisma + PostgreSQL" }
   },
-  "tech_stack": {
-    "framework": "Next.js 16.2.4 (App Router)",
-    "language": "TypeScript",
-    "styling": "TailwindCSS v4 + shadcn/ui",
-    "ui_library": "shadcn/ui (components in components/ui/)",
-    "fonts": "Plus Jakarta Sans (body) + JetBrains Mono (code)",
-    "database": "Supabase PostgreSQL (free tier)",
-    "orm": "Prisma v5 (code-first, db push only)",
-    "auth": "Supabase Auth (email/password)",
-    "storage": "Cloudflare R2 (S3-compatible, image upload)",
-    "validation": "Zod v4",
-    "forms": "React Hook Form v7",
-    "icons": "lucide-react v1.14",
-    "toast": "Sonner (via shadcn/ui)",
-    "carousel": "Swiper v12",
-    "image_compression": "browser-image-compression"
-  },
-  "database_schema": {
-    "summary": "Gồm 4 bảng chính: products, categories, shop_config và posts (cho Blog)",
-    "orm_file": "prisma/schema.prisma",
-    "tables": [
-      {
-        "name": "products",
-        "columns": [
-          { "name": "id", "type": "uuid" },
-          { "name": "name", "type": "text" },
-          { "name": "slug", "type": "text" },
-          { "name": "price", "type": "decimal" },
-          { "name": "cover_image", "type": "text" },
-          { "name": "images", "type": "json" }
-        ]
-      },
-      {
-        "name": "shop_config",
-        "columns": [
-          { "name": "id", "type": "text" },
-          { "name": "hero_title", "type": "text" },
-          { "name": "hero_subtitle", "type": "text" },
-          { "name": "hero_image", "type": "text" },
-          { "name": "meta_title", "type": "text" },
-          { "name": "meta_description", "type": "text" }
-        ]
-      },
-      {
-        "name": "posts",
-        "columns": [
-          { "name": "id", "type": "uuid" },
-          { "name": "title", "type": "text" },
-          { "name": "slug", "type": "text" },
-          { "name": "content", "type": "text" },
-          { "name": "status", "type": "text" },
-          { "name": "seo_keywords", "type": "text" }
-        ]
-      }
-    ]
-  },
-  "file_structure": {
-    "app/(public)/page.tsx": "Trang chủ - CMS động, Featured Categories, Hero section",
-    "app/(public)/san-pham/page.tsx": "Listing page - Lọc đa năng (Mobile Sheet), Sort, Active Tags",
-    "app/(public)/san-pham/[slug]/page.tsx": "PDP - Gallery, Related Products Carousel",
-    "app/(public)/blog/page.tsx": "Trang danh sách Blog",
-    "app/(public)/blog/[slug]/page.tsx": "Chi tiết bài viết Blog chuẩn SEO",
-    "components/ui/ImageWithSkeleton.tsx": "Component ảnh tối ưu: Lazy Load + Skeleton",
-    "components/ProductCarousel.tsx": "Carousel sản phẩm liên quan (Swiper + Custom Nav)",
-    "components/MobileFilters.tsx": "Bộ lọc mobile dạng trượt (shadcn Sheet)",
-    "prisma/seed.ts": "Script sinh 25 sản phẩm mẫu",
-    "proxy.ts": "Middleware xử lý Auth và Redirect (Next.js 16 Proxy convention)"
-  },
-  "shadcn_components_installed": [
-    "button", "input", "label", "table", "dropdown-menu",
-    "alert-dialog", "sonner", "sheet"
+  "api_endpoints": [
+    { "path": "/api/products", "method": "GET", "explained": "Lấy danh sách sản phẩm với bộ lọc (search, category, price) và phân trang. Được cache HTTP (stale-while-revalidate)." }
   ],
   "features": [
-    "Homepage CMS: Quản lý Hero content từ Admin",
-    "Storefront UI: Giao diện premium, mobile-first",
-    "Smart Filters: Lọc theo danh mục, giá, tìm kiếm",
-    "Image Optimization: Lazy loading và Skeleton placeholders toàn trang",
-    "Product Seeding: 25 records mẫu đa dạng",
-    "SEO Optimization: Schema Markup JSON-LD đầy đủ (Product, ItemList, Article)",
-    "Tracking: Google Analytics 4 với Event Tracking (click_zalo, click_messenger)",
-    "Google Merchant Center: Tự động generate XML Product Feed",
-    "AI Blog CMS: Hệ thống viết bài tự động bằng AI từ nguồn tham khảo, có Rich Text Editor",
-    "External CMS API: Mở API để auto đẩy bài viết vào hệ thống từ job bên ngoài"
+    "Trang Sản Phẩm: Static Shell + Client-Side Filtering (SWR) cho trải nghiệm siêu mượt không tải lại trang.",
+    "Trang Chi tiết Sản Phẩm (PDP): Static Site Generation (SSG) với generateStaticParams, load tức thì."
   ],
-  "api_endpoints": [
-    {
-      "path": "/api/feed/google-merchant.xml",
-      "method": "GET",
-      "explained": "Trả về danh sách sản phẩm active dưới dạng XML RSS 2.0 chuẩn Google Merchant Center, tự động lấy origin làm base URL."
-    },
-    {
-      "path": "/api/admin/ai-generate",
-      "method": "POST",
-      "explained": "Fetch HTML từ URL tham khảo và gửi cho Gemini 2.0 Flash để tạo nội dung blog chuẩn SEO."
-    },
-    {
-      "path": "/api/posts",
-      "method": "POST",
-      "explained": "API nội bộ bảo mật (x-api-key) để tự động tạo bài viết từ job/cron bên ngoài."
-    }
-  ],
-  "known_issues": [
-    {
-      "issue": "Hydration error: button in button",
-      "solution": "Thay button thumbnail thành div (role=button) trong ProductGallery"
-    },
-    {
-      "issue": "Image 404 Domain Config",
-      "solution": "Khai báo images.unsplash.com và R2 domain trong next.config.ts"
-    },
-    {
-      "issue": "Build fail: Base UI asChild",
-      "solution": "Dùng prop 'render' thay cho 'asChild' trong components/MobileFilters.tsx"
-    },
-    {
-      "issue": "Next.js 16 Middleware Deprecation",
-      "solution": "Đổi tên middleware.ts thành proxy.ts và export function proxy"
-    }
-  ]
+  "knowledge_items": {
+    "patterns": [
+      "Dùng unstable_cache cho các database query phức tạp để lưu vào Next.js Data Cache.",
+      "Thêm Cache-Control (public, s-maxage=3600, stale-while-revalidate=86400) cho API routes thay vì cache Prisma để tận dụng Vercel Edge CDN.",
+      "Sử dụng keepPreviousData: true trong SWR để tránh nháy màn hình (Skeleton) khi lọc dữ liệu."
+    ]
+  }
 }
